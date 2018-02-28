@@ -36,4 +36,16 @@ Clue: golden 6! (Score: 0.37934797651586716)
 
 Your guess: bridge
 Correct!
+
 ```
+
+How it works
+============
+The bot decides what words go well together, by comparing their vectors in the GloVe trained on Wikipedia text.
+This means that words that often occour in the same articles and sentences are judged to be similar.
+In the example about, golden is of course similar to bridge by association with the Golden Gate Bridge.
+Other words that were found to be similar were 'dragon', 'triangle', 'duck', 'iron' and 'horn'.
+
+However, in Codenames the task is not merely to find words that describe other words well.
+You also need to make sure that 'bad words' are as different as possible from your clue.
+To achieve this, the bot tries to find a word that maximizes the similarity gap between the marked words and the bad words.
