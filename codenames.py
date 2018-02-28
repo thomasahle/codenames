@@ -9,7 +9,7 @@ vectors = np.load('dataset/glove.6B.300d.npy')
 print('...Normalizing')
 vectors /= np.linalg.norm(vectors, axis=1).reshape(-1, 1)
 print('...Loading words')
-word_list = [w.lower().strip() for w in open('dataset/words.txt')]
+word_list = [w.lower().strip() for w in open('dataset/words')]
 print('...Making word to index dict')
 word_to_index = {w:i for i,w in enumerate(word_list)}
 print('...Loading codenames')
