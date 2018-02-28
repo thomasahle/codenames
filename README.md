@@ -10,11 +10,12 @@ rounds as possible.
 ```
 $ git clone git@github.com:thomasahle/codenames.git
 ...
+
 $ sh get_glove.sh
 ...
+
 $ python3 codenames.py
 ...Loading vectors
-...Normalizing
 ...Loading words
 ...Making word to index dict
 ...Loading codenames
@@ -28,11 +29,9 @@ Will you be agent or spymaster?: agent
      duck     bugle    school       ham   mammoth
    bridge      fair  triangle   capital      horn
 
-Thinking 8 ... 0.110 19001
-Thinking 7 ... 0.265 11339
-Thinking 6 ... 0.379 2410
+Thinking....................
 
-Clue: golden 6! (Score: 0.37934797651586716)
+Clue: "golden 6" (certainty 7.78, remaining words 8)
 
 Your guess: bridge
 Correct!
@@ -49,3 +48,5 @@ Other words that were found to be similar were 'dragon', 'triangle', 'duck', 'ir
 However, in Codenames the task is not merely to find words that describe other words well.
 You also need to make sure that 'bad words' are as different as possible from your clue.
 To achieve this, the bot tries to find a word that maximizes the similarity gap between the marked words and the bad words.
+
+If you want the bot to be more aggressive in its clues (choosing larger groups), try changing the `agg = .5` value near the top of `codenames.py` to a larger value, such as `.8` or `1.5`. 
