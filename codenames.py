@@ -4,12 +4,23 @@ import re
 import numpy as np
 import math
 
+# Total number of clues is cnt_rows*cnt_cols.
+# Total number of marked words is cnt_agents.
+cnt_rows = 5
+cnt_cols = 5
+cnt_agents = 8
+
+# Agressiveness in [0, infinity).
+# Higher means more agressive.
+agg = .5
+
+# This file stores the "solutions" the bot had intended,
+# when you play as agent and the bot as spymaster.
+log_file = open('log_file', 'w')
+
+
 print('...Loading vectors')
 vectors = np.load('dataset/glove.6B.300d.npy')
-# Normalizing turns out to be a bad idea, since words that are good clues
-# tends to have longer vectors.
-#print('...Normalizing')
-#vectors /= np.linalg.norm(vectors, axis=1).reshape(-1, 1)
 print('...Loading words')
 word_list = [w.lower().strip() for w in open('dataset/words')]
 print('...Making word to index dict')
@@ -19,17 +30,6 @@ codenames = [w.lower().strip().replace(' ','-') for w in open('wordlist2')]
 codenames = [w for w in codenames if w in word_to_index]
 print('Ready!')
 
-log_file = open('log_file', 'w')
-
-# Total number of clues is cnt_rows*cnt_cols.
-# TOtal number of marked words is cnt_agents.
-cnt_rows = 5
-cnt_cols = 5
-cnt_agents = 8
-
-# Agressiveness in [0, infinity).
-# Higher means more agressive.
-agg = .5
 
 def word_to_vector(word):
     return vectors[word_to_index[word]]
