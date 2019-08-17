@@ -258,7 +258,7 @@ class Codenames:
 
 def main():
     cn = Codenames()
-    cn.load("data")
+    cn.load("dataset")
     reader = TerminalReader()
     while True:
         try:
