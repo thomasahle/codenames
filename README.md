@@ -7,21 +7,21 @@ You can play as the agent or the spymaster, and the Glove word vectors will
 take the role of your partner, as you try to find the 8 marked words in as few
 rounds as possible.
 
-```
-$ git clone git@github.com:thomasahle/codenames.git
+<pre>
+$ <b>git clone git@github.com:thomasahle/codenames.git</b>
 ...
 
-$ sh get_glove.sh
+$ <b>sh get_glove.sh</b>
 ...
 
-$ python3 codenames.py
+$ <b>python3 codenames.py</b>
 ...Loading vectors
 ...Loading words
 ...Making word to index dict
 ...Loading codenames
 Ready!
 
-Will you be agent or spymaster?: agent
+Will you be agent or spymaster?: <b>agent</b>
 
      buck       bat   pumpkin    charge      iron
      well      boot     chick superhero     glove
@@ -33,10 +33,9 @@ Thinking....................
 
 Clue: "golden 6" (certainty 7.78, remaining words 8)
 
-Your guess: bridge
+Your guess: <b>bridge</b>
 Correct!
-
-```
+</pre>
 
 How it works
 ============
