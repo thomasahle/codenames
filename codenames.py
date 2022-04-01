@@ -112,6 +112,11 @@ class Codenames:
         print("...Making word to index dict")
         self.word_to_index = {w: i for i, w in enumerate(self.word_list)}
 
+        # Get rid of stupid hints like "the"
+        self.stopwords = [w.strip() for w in open('stopwords')]
+        for w in self.stopwords:
+            self.weirdness[self.word_to_index[w]] += 5
+
         # All words that are allowed to go onto the table
         print("...Loading codenames")
         self.codenames: List[str] = [
