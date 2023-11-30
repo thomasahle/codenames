@@ -114,6 +114,9 @@ async function start() {
          console.log("Round over, please start next round.");
          return;
       }
+      if (data.revealed.includes(word)) {
+         return;
+      }
 
       data.revealed.push(word);
       data.revealedThisRound += 1;
