@@ -1,10 +1,12 @@
 // Start heavy promises
+const root = '/codenames/website/model';
+// const root = '/model';
 const prom = Promise.all([
-   fetchVectors('/model/vecs.gz'),
-   fetchWordsGz('/model/words.gz'),
-   fetchWords('/model/stopwords')
+   fetchVectors(root + '/vecs.gz'),
+   fetchWordsGz(root + '/words.gz'),
+   fetchWords(root + '/stopwords')
 ]);
-const wlprom = fetchWords('/model/wordlist');
+const wlprom = fetchWords(root + '/wordlist');
 
 const ROWS = 4;
 const COLS = 4;
