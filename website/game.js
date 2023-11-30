@@ -1,6 +1,6 @@
 // Start heavy promises
 const root = '/codenames/website/model';
-// const root = '/model';
+//const root = '/model';
 const prom = Promise.all([
    fetchVectors(root + '/vecs.gz'),
    fetchWordsGz(root + '/words.gz'),
@@ -66,6 +66,7 @@ async function start() {
 
             if (data.revealed.includes(word)) {
                cardElement.classList.add(data.secret.includes(word) ? "good" : "bad");
+               cardElement.classList.add("revealed");
             }
 
             gameBoard.appendChild(cardElement);
@@ -89,6 +90,7 @@ async function start() {
       // Clues
       if (!data.ai) {
          clueElem.textContent = "Loading...";
+         console.log('loading...');
       }
       else if (data.thinking) {
          clueElem.textContent = "Thinking...";
