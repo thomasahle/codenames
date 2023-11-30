@@ -46,9 +46,36 @@ header {
     padding: 20% 10%;
     background-color: #eee;
     cursor: pointer;
-    font-size: 1rem;
     text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
 }
+
+/*
+.card::before {
+  content: '';
+  position: absolute;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  transform: scale(0);
+  width: 100%;
+  height: 100%;
+  top: 50%;
+  left: 50%;
+  transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+  pointer-events: none;
+}
+
+.card.revealed::before {
+  transform: scale(3);
+  opacity: 0;
+}
+
+.card:hover::before {
+  transform: scale(1.5);
+  opacity: 0.2;
+}
+*/
 
 .good {
    background: #90ecff;
@@ -86,3 +113,11 @@ button:hover {
     background-color: #333;
 }
 
+@media only screen and (max-width: 600px) {
+   html {
+      font-size: 80%;
+   }
+   .board {
+      gap: .2rem;
+   }
+}

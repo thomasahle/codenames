@@ -62,6 +62,8 @@ async function start() {
             const cardElement = document.createElement('div');
             cardElement.className = 'card';
             cardElement.textContent = word;
+
+
             cardElement.onclick = () => handleCardClick(word);
 
             if (data.revealed.includes(word)) {
@@ -70,6 +72,11 @@ async function start() {
             }
 
             gameBoard.appendChild(cardElement);
+
+            // Reduce size if too large
+            if (cardElement.scrollWidth > cardElement.clientWidth) {
+               cardElement.style.fontSize = "80%";
+            }
          });
       }
 
