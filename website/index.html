@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codenames AI Game</title>
+
+    <script src="https://unpkg.com/ml-matrix@6.10.8/matrix.umd.js"></script>
+    <script src="game.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body onload="start()">
+    <pre id="output"></pre>
+    <div class="container">
+        <header>
+            <h1>AI Codenames</h1>
+        </header>
+        <div class="scoreboard">
+            <span id="round">1</span>
+            <span id="clue"></span>
+            <button id="endTurn">Next Round</button>
+        </div>
+        <div id="gameBoard" class="board"></div>
+        <footer>
+            <button id="player">Player</button>
+            <button id="spymaster">Spymaster</button>
+        </footer>
+    </div>
+</body>
+</html>
