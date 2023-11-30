@@ -255,7 +255,7 @@ function makeHint(matrix, words, stopwords, board, secret) {
    let best = {};
    for (let step = 0; step < words.length; step++) {
       const clue = words[step];
-      const lowerBound = nm[step];
+      const lowerBound = nm[step] || 0;
       const scores = pm.getRow(step);
 
       // If the best score is lower than the lower bound, there is no reason
