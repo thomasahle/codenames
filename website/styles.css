@@ -1,3 +1,9 @@
+:root {
+    --good-color: #ebca47;
+    --bad-color: #5c4f4f;
+    --card-color: #efede9;
+}
+
 * {
    margin: 0;
    padding: 0;
@@ -18,7 +24,7 @@ body.round-over {
 }
 
 body.game-over {
-   background: #f0ffee;
+   background: #fff9e2;
 }
 
 .container {
@@ -97,7 +103,7 @@ ol > li {
    height: 3rem;
    margin: .3rem .3rem 0 0;
    text-align: center;
-   background-color: #efede9;
+   background-color: var(--card-color);
 }
 
 
@@ -114,7 +120,7 @@ ol > li {
 
 .card {
    padding: 20% 10%;
-   background-color: #efede9;
+   background-color: var(--card-color);
    border-radius: 5px;
    font-size: larger;
    font-weight: bold;
@@ -130,11 +136,11 @@ body.round-over .card {
 }
 
 .good {
-   background: #90ecff;
+   background: var(--good-color);
 }
 
 .bad {
-   background: #5c4f4f;
+   background: var(--bad-color);
    color: white;
 }
 
