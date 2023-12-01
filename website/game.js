@@ -1,6 +1,5 @@
 // Start heavy promises
 const root = '/codenames/website/model';
-//const root = '/model';
 const prom = Promise.all([
    fetchVectors(root + '/vecs.gz'),
    fetchWordsGz(root + '/words.gz'),
@@ -21,6 +20,7 @@ const SECRETS = 5;
  * - Don't reuse hints
  * - Different backgorund color for when all clues are used vs making a mistake
  * - Make hints work when we only have secrets left
+ * X Don't allow clicking on something already clicked
  *
  * Medium:
  * - One game a day, seeding
@@ -144,10 +144,14 @@ async function start() {
       data.thinking = true;
       render();
 
-      console.log(data.ai);
       const board = data.board.filter(w => !data.revealed.includes(w));
       const secret = data.secret.filter(w => !data.revealed.includes(w));
-      hint = makeHint(data.ai.matrix, data.ai.words, data.ai.stopwords, board, secret);
+      let stopwords = [...data.ai.stopwords];
+      if (data.hints.length != 0) {
+         // Don't reuse the hint you just used.
+         stopwords.push(data.hints[data.hints.length-1].clue);
+      }
+      hint = makeHint(data.ai.matrix, data.ai.words, stopwords, board, secret);
       data.hints.push(hint);
 
       data.thinking = false;

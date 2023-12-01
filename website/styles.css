@@ -120,4 +120,7 @@ button:hover {
    .board {
       gap: .2rem;
    }
+   #endTurn {
+      padding: 1rem;
+   }
 }
