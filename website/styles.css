@@ -34,7 +34,7 @@ header {
 }
 
 .header-left, menu {
-   width: 350px;
+   width: 150px;
 }
 
 menu button {
@@ -212,7 +212,7 @@ body.game-over #endTurn {
   padding: 20px;
   border: 1px solid #c0c0c0;
   border-radius: 5px;
-  width: 30rem;
+  width: 600px;
   box-shadow: 0 1px 12px 5px rgba(0,0,0,0.2);
   position: relative;
 }
@@ -233,4 +233,13 @@ body.game-over #endTurn {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+@media only screen and (max-width: 600px) {
+   .modal-content {
+      width: 100%;
+   }
+   menu button {
+      padding: .25rem;
+   }
 }
