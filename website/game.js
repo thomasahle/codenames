@@ -7,9 +7,9 @@ const prom = Promise.all([
 ]);
 const wlprom = fetchWords(root + '/wordlist');
 
-const ROWS = 4;
-const COLS = 4;
-const SECRETS = 5;
+const ROWS = 6;
+const COLS = 3;
+const SECRETS = 6;
 
 /*
  * TODO:
@@ -38,6 +38,7 @@ async function start() {
    const clueElem = document.getElementById('clue');
    const roundElem = document.getElementById('round');
    const endTurnButton = document.getElementById('endTurn');
+   const hintFooter = document.getElementById('hint');
 
    const data = {
       ai: {},  // matrix, words, stopwords
@@ -58,11 +59,11 @@ async function start() {
       // Render board
       if (data.board.length > 0) {
          gameBoard.innerHTML = ''; // Clear existing board
+         gameBoard.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
          data.board.forEach(word => {
             const cardElement = document.createElement('div');
             cardElement.className = 'card';
             cardElement.textContent = word;
-
 
             cardElement.onclick = () => handleCardClick(word);
 
@@ -102,9 +103,20 @@ async function start() {
       else if (data.thinking) {
          clueElem.textContent = "Thinking...";
       }
+      else if (isGameOver()) {
+         clueElem.textContent = "Congratulations, You Won!";
+      }
       else if (data.hints.length != 0) {
          const {clue, n} = data.hints[data.hints.length-1];
          clueElem.textContent = `Clue: ${clue.toUpperCase()} ${n} `;
+      }
+
+      // Footer
+      if (isGameOver()) {
+         const s = compileLog(data.hints, data.revealed, data.secret);
+         hintFooter.innerHTML = s;
+      } else {
+         hintFooter.textContent = "Hint: The AI considers words similar if they are often used in the same sentences. e.g. \"moderate\" might be a hint for \"degree\", or \"truck\" for \"bike\".";
       }
    }
 
@@ -159,7 +171,11 @@ async function start() {
    }
 
    endTurnButton.onclick = function() {
-      newRound();
+      if (data.roundOver) {
+         newRound();
+      } else {
+         console.log("Just finish the round yourself.");
+      }
    }
 
    async function init() {
@@ -313,8 +329,13 @@ function makeHint(matrix, words, stopwords, board, secret) {
       let combinedScore = gap * (Math.pow(n+1, agg) - 0.99);
       console.log(`Combined Score: ${combinedScore}`);
 
+      let indices = [...scores.keys()];
+      indices.sort((a, b) => scores[b] - scores[a]);
+      let largestIndices = indices.slice(0, n+1);
+      let intendedClues = largestIndices.map(i => secret[i]);
+
       if (combinedScore > combinedBest.combinedScore) {
-         combinedBest = {n: n+1, clue, combinedScore};
+         combinedBest = {n: n+1, clue, intendedClues, combinedScore};
       }
    }
 
@@ -322,3 +343,50 @@ function makeHint(matrix, words, stopwords, board, secret) {
 }
 
 
+function compileLog(hints, revealed, secret) {
+   let s = "<h2>The intended clues:</h2>";
+   s += "<ol class=\"log\">";
+   let j = 0;
+   for (let i = 0; i < hints.length; i++) {
+       let hint = hints[i];
+       s += `<li><span>Round ${i + 1} Clue: <b>${hint.clue.toUpperCase()}</b> ${hint.n}</span>`;
+       s += "<ul>";
+
+       let guessed = [];
+       while (
+          j !== revealed.length           // Finished game
+          && secret.includes(revealed[j]) // Finished 
+          && guessed.length != hint.n     // Finished without a mistake
+       ) {
+           guessed.push(revealed[j]);
+           j++;
+       }
+
+       let mistake = null;
+       if (j !== revealed.length && guessed.length != hint.n) {
+           mistake = revealed[j];
+           j++;
+       }
+
+       let intended = hint.intendedClues;
+       for (let word of intended) {
+           if (!guessed.includes(word)) {
+               s += `<li class="small-card">${word}<br>(Intended clue)</li>`;
+           }
+       }
+       for (let word of guessed) {
+           if (intended.includes(word)) {
+               s += `<li class="small-card good">${word}<br>(Guessed and Intended)</li>`;
+           } else {
+               s += `<li class="small-card good">${word}<br>(Guessed by chance)</li>`;
+           }
+       }
+       if (mistake !== null) {
+           s += `<li class="small-card bad">${mistake}<br>(Incorrect)</li>`;
+       }
+
+       s += "</ul></li>";
+   }
+   s += "</ol>";
+   return s;
+}

@@ -5,6 +5,10 @@ body, h1, p, button {
     text-align: center;
 }
 
+body {
+   margin-bottom: 5rem;
+}
+
 body.round-over {
    background: #faf8f8;
 }
@@ -23,13 +27,57 @@ header {
 }
 
 .scoreboard {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: .7rem .7rem .7rem 1.7rem;
+    padding: .7rem;
     background-color: #eee;
     margin-bottom: 1rem;
+    position: relative;
 }
+
+#round {
+   position: absolute;
+   left: 1.7rem;
+}
+
+#clue {
+   font-size: 110%;
+}
+
+#bottom {
+   text-align: right;
+   margin-bottom: 2rem;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    font-size: 110%;
+}
+ol {
+   text-align: left;
+}
+ul, ol {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+ul {
+    display: flex;
+}
+ol > li {
+   margin-bottom: 1rem;
+}
+.small-card {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   padding: 4px;
+   width: 7rem;
+   font-size: 80%;
+   height: 3rem;
+   margin: .3rem .3rem 0 0;
+   text-align: center;
+   background-color: #eee;
+}
+
 
 #turn {
     font-weight: bold;
@@ -37,6 +85,7 @@ header {
 
 .board {
     display: grid;
+    /* Overwritten from javascript */
     grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
     margin-bottom: 1rem;
@@ -94,18 +143,13 @@ body.game-over #endTurn {
    visibility: hidden;
 }
 
-footer {
-    display: flex;
-    justify-content: space-between;
-    padding: 2rem;
-}
-
 button {
-    padding: 1rem 2rem;
+    padding: 1.5rem 2rem;
     border: none;
     background-color: #000;
     color: #fff;
     cursor: pointer;
+    font-size: 105%;
 }
 
 button:hover {
@@ -118,8 +162,5 @@ button:hover {
    }
    .board {
       gap: .2rem;
-   }
-   #endTurn {
-      padding: 1rem;
    }
 }

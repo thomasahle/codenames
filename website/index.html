@@ -4,27 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Codenames AI Game</title>
+    <link rel="stylesheet" href="styles.css">
 
     <script src="https://unpkg.com/ml-matrix@6.10.8/matrix.umd.js"></script>
     <script src="game.js"></script>
-    <link rel="stylesheet" href="styles.css">
 </head>
 <body onload="start()">
-    <pre id="output"></pre>
-    <div class="container">
-        <header>
-            <h1>AI Codenames</h1>
-        </header>
-        <div class="scoreboard">
-            <span id="round"></span>
-            <span id="clue">Loading...</span>
-            <button id="endTurn">Next Round</button>
-        </div>
-        <div id="gameBoard" class="board"></div>
-        <footer>
-           Hint: The AI tends to consider words similar if they are used in the same sentences.
-           E.g. "Moderate" might be a hint for "Degree", or "Truck" for "Bike".
-        </footer>
-    </div>
+   <pre id="output"></pre>
+   <div class="container">
+      <header>
+         <h1>AI Codenames</h1>
+      </header>
+      <div class="scoreboard">
+         <span id="round"></span>
+         <span id="clue">Loading...</span>
+         <span></span>
+      </div>
+      <div id="gameBoard" class="board"></div>
+      <div id="bottom">
+         <span></span>
+         <span></span>
+         <button id="endTurn">Next Round</button>
+      </div>
+      <footer id="hint"></footer>
+   </div>
 </body>
 </html>
