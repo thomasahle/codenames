@@ -97,7 +97,7 @@ ol > li {
    height: 3rem;
    margin: .3rem .3rem 0 0;
    text-align: center;
-   background-color: #eee;
+   background-color: #efede9;
 }
 
 
@@ -114,7 +114,10 @@ ol > li {
 
 .card {
    padding: 20% 10%;
-   background-color: #eee;
+   background-color: #efede9;
+   border-radius: 5px;
+   font-size: larger;
+   font-weight: bold;
    cursor: pointer;
    text-transform: uppercase;
    position: relative;
