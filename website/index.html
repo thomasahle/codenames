@@ -1,32 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codenames AI Game</title>
-    <link rel="stylesheet" href="styles.css">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Codenames AI Game</title>
 
-    <script src="https://unpkg.com/ml-matrix@6.10.8/matrix.umd.js"></script>
-    <script src="game.js"></script>
-</head>
-<body onload="start()">
-   <pre id="output"></pre>
-   <div class="container">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+      <link rel="stylesheet" href="styles.css">
+
+      <script src="https://unpkg.com/ml-matrix@6.10.8/matrix.umd.js"></script>
+      <script src="game.js"></script>
+   </head>
+   <body onload="start()">
       <header>
+         <div class="header-left"></div>
          <h1>AI Codenames</h1>
+         <menu>
+            <button id="help-button">
+               <i class="ti ti-help"></i>
+            </button>
+            <button id="stats-button">
+               <i class="ti ti-chart-bar"></i>
+            </button>
+         </menu>
       </header>
-      <div class="scoreboard">
-         <span id="round"></span>
-         <span id="clue">Loading...</span>
-         <span></span>
+      <div class="container">
+         <div class="scoreboard">
+            <span id="round"></span>
+            <span id="clue">Loading...</span>
+            <span></span>
+         </div>
+         <div id="gameBoard" class="board"></div>
+         <div id="bottom">
+            <span class="spacer1"></span>
+            <span class="spacer2"></span>
+            <button id="endTurn">Next Round</button>
+         </div>
+         <footer id="hint" class="hint"></footer>
       </div>
-      <div id="gameBoard" class="board"></div>
-      <div id="bottom">
-         <span class="spacer1"></span>
-         <span class="spacer2"></span>
-         <button id="endTurn">Next Round</button>
+
+      <div id="help-modal" class="modal">
+        <div class="modal-content">
+           <h2>How to play</h2>
+          <button id="help-close" class="close">&times;</button>
+          <p>Some text in the help Modal..</p>
+        </div>
       </div>
-      <footer id="hint"></footer>
-   </div>
-</body>
+
+      <div id="stats-modal" class="modal">
+        <div class="modal-content">
+           <h2>Statistics</h2>
+          <button id="stats-close" class="close">&times;</button>
+          <p>Some text in the stats Modal..</p>
+        </div>
+      </div>
+   </body>
 </html>

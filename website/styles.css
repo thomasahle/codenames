@@ -1,8 +1,12 @@
+* {
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+}
 body, h1, p, button {
    margin: 0;
    padding: 0;
    font-family: sans-serif;
-   text-align: center;
 }
 
 body {
@@ -23,7 +27,25 @@ body.game-over {
 }
 
 header {
-   padding: 2rem;
+   margin-bottom: 2rem;
+   display: flex;
+   border-bottom: 1px solid #d3d6da;
+   align-items: center;
+}
+
+.header-left, menu {
+   width: 350px;
+}
+
+menu button {
+   font-size: 2rem;
+   padding: 1rem;
+}
+
+h1 {
+   flex: 1 1 0;
+   padding: 1rem 0;
+   text-align: center;
 }
 
 .scoreboard {
@@ -31,6 +53,7 @@ header {
    background-color: #eee;
    margin-bottom: 1rem;
    position: relative;
+   text-align: center;
 }
 
 #round {
@@ -96,6 +119,11 @@ ol > li {
    text-transform: uppercase;
    position: relative;
    overflow: hidden;
+   text-align: center;
+}
+
+body.round-over .card {
+   cursor: auto;
 }
 
 .good {
@@ -107,25 +135,36 @@ ol > li {
    color: white;
 }
 
-body:not(.round-over) #endTurn {
-   /*visibility: hidden;*/
-   background: #555;
-}
-body.game-over #endTurn {
-   visibility: hidden;
+.hint {
+   text-align: center;
 }
 
 button {
+   background: transparent;
+   border: none;
+   cursor: pointer;
+}
+
+#endTurn {
    padding: 1.5rem 2rem;
    border: none;
    background-color: #000;
    color: #fff;
    cursor: pointer;
    font-size: 105%;
+   border-radius: 10px;
 }
 
-button:hover {
+#endTurn:hover {
    background-color: #333;
+}
+
+body:not(.round-over) #endTurn {
+   background: #888;
+   cursor: auto;
+}
+body.game-over #endTurn {
+   visibility: hidden;
 }
 
 @media only screen and (max-width: 600px) {
@@ -141,4 +180,57 @@ button:hover {
    .spacer1 {
       display:none;
    }
+   #hint {
+      margin: 0 .2rem;
+   }
+   .header-left, menu {
+      width: auto;
+   }
+}
+
+/********************************************************************************/
+/*                    Modal overlay                                             */
+/********************************************************************************/
+
+/* Modal container */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(255,255,255,.8); /* Black w/ opacity */
+}
+
+/* Modal content */
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #c0c0c0;
+  border-radius: 5px;
+  width: 30rem;
+  box-shadow: 0 1px 12px 5px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
 }

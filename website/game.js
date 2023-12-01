@@ -21,15 +21,20 @@ const SECRETS = 6;
  * - Different backgorund color for when all clues are used vs making a mistake
  * X Make hints work when we only have secrets left
  * X Don't allow clicking on something already clicked
+ * - Consider a "new game" button?
  *
  * Medium:
  * - One game a day, seeding
+ * - A victory screen that is an overlay, like in Wordle
+ * - Automatically show help the first time a user joins
+ * - Write help text
  *
  * Harder:
  * - Support the user being the spy master
  * - Save all user guesses
  * - Scoreboard
- * - After the game, show a log of what clues the AI was going for
+ * - Track user clicks
+ * X After the game, show a log of what clues the AI was going for
  */
 
 async function start() {
@@ -178,6 +183,8 @@ async function start() {
       }
    }
 
+
+
    async function init() {
       let wordlist = await wlprom;
       // TODO: Seed
@@ -197,6 +204,62 @@ async function start() {
    }
 
    init();
+   initMenu();
+}
+
+function initMenu() {
+   const statsButton = document.getElementById('stats-button');
+   const helpButton = document.getElementById('help-button');
+   const statsClose = document.getElementById('stats-close');
+   const helpClose = document.getElementById('help-close');
+   const statsModal = document.getElementById('stats-modal');
+   const helpModal = document.getElementById('help-modal');
+
+   data = {
+      helpShown: false,
+      statsShown: false,
+   }
+
+   statsButton.onclick = function() {
+      data.statsShown = true;
+      render();
+   }
+
+   statsClose.onclick = function() {
+      data.statsShown = false;
+      render();
+   }
+
+   helpButton.onclick = function() {
+      data.helpShown = true;
+      render();
+   }
+
+   helpClose.onclick = function() {
+      data.helpShown = false;
+      render();
+   }
+
+   Array.from(document.getElementsByClassName("modal")).forEach(modal => {
+      modal.onclick = closeAll;
+   });
+
+   document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+         closeAll();
+      }
+   });
+
+   function closeAll() {
+      data.statsShown = false;
+      data.helpShown = false;
+      render();
+   }
+
+   function render() {
+      statsModal.style.display = data.statsShown ? "block" : "none";
+      helpModal.style.display = data.helpShown ? "block" : "none";
+   }
 }
 
 function fetchWords(path) {
