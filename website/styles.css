@@ -98,7 +98,6 @@ footer {
     display: flex;
     justify-content: space-between;
     padding: 2rem;
-    display: none;
 }
 
 button {

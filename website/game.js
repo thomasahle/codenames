@@ -17,9 +17,9 @@ const SECRETS = 5;
  * Easy:
  * X Don't use a word that's on the board
  * X Make sure the whole wordlist is included in the vecs
- * - Don't reuse hints
+ * X Don't reuse hints
  * - Different backgorund color for when all clues are used vs making a mistake
- * - Make hints work when we only have secrets left
+ * X Make hints work when we only have secrets left
  * X Don't allow clicking on something already clicked
  *
  * Medium:
