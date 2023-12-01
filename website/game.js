@@ -1,3 +1,9 @@
+
+// Check if the iOS version is at least 17
+if (!isIOSVersionAtLeast(17)) {
+   alert('Requires iOS at least v17, or Android');
+}
+
 // Start heavy promises
 const root = '/codenames/website/model';
 const prom = Promise.all([
@@ -10,6 +16,7 @@ const wlprom = fetchWords(root + '/wordlist');
 const ROWS = 6;
 const COLS = 3;
 const SECRETS = 6;
+
 
 /*
  * TODO:
@@ -130,6 +137,9 @@ async function start() {
       if (data.roundOver) {
          console.log("Round over, please start next round.");
          return;
+      }
+      if (data.thinking) {
+         console.log("Please wait...");
       }
       if (data.revealed.includes(word)) {
          return;
@@ -452,4 +462,18 @@ function compileLog(hints, revealed, secret) {
    }
    s += "</ol>";
    return s;
+}
+
+// Utils
+function isIOSVersionAtLeast(version) {
+    const ua = window.navigator.userAgent;
+    const ios = ua.match(/OS (\d+)_/);
+
+    if (ios && ios.length > 1) {
+        const iosVersion = parseInt(ios[1], 10);
+        return iosVersion >= version;
+    }
+
+   // If not iOS, we are fine
+    return true;
 }
