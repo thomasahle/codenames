@@ -1,8 +1,8 @@
 body, h1, p, button {
-    margin: 0;
-    padding: 0;
-    font-family: sans-serif;
-    text-align: center;
+   margin: 0;
+   padding: 0;
+   font-family: sans-serif;
+   text-align: center;
 }
 
 body {
@@ -18,19 +18,19 @@ body.game-over {
 }
 
 .container {
-    max-width: 40rem;
-    margin: auto;
+   max-width: 40rem;
+   margin: auto;
 }
 
 header {
-    padding: 2rem;
+   padding: 2rem;
 }
 
 .scoreboard {
-    padding: .7rem;
-    background-color: #eee;
-    margin-bottom: 1rem;
-    position: relative;
+   padding: .7rem;
+   background-color: #eee;
+   margin-bottom: 1rem;
+   position: relative;
 }
 
 #round {
@@ -46,21 +46,20 @@ header {
    text-align: right;
    margin-bottom: 2rem;
 
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    font-size: 110%;
+   display: grid;
+   grid-template-columns: repeat(3, 1fr);
+   gap: 1rem;
 }
 ol {
    text-align: left;
 }
 ul, ol {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+   list-style-type: none;
+   margin: 0;
+   padding: 0;
 }
 ul {
-    display: flex;
+   display: flex;
 }
 ol > li {
    margin-bottom: 1rem;
@@ -80,51 +79,24 @@ ol > li {
 
 
 #turn {
-    font-weight: bold;
+   font-weight: bold;
 }
 
 .board {
-    display: grid;
-    /* Overwritten from javascript */
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-    margin-bottom: 1rem;
+   display: grid;
+   grid-template-columns: repeat(4, 1fr); /* Overwritten from javascript */
+   gap: 1rem;
+   margin-bottom: 1rem;
 }
 
 .card {
-    padding: 20% 10%;
-    background-color: #eee;
-    cursor: pointer;
-    text-transform: uppercase;
-    position: relative;
-    overflow: hidden;
+   padding: 20% 10%;
+   background-color: #eee;
+   cursor: pointer;
+   text-transform: uppercase;
+   position: relative;
+   overflow: hidden;
 }
-
-/*
-.card::before {
-  content: '';
-  position: absolute;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 50%;
-  transform: scale(0);
-  width: 100%;
-  height: 100%;
-  top: 50%;
-  left: 50%;
-  transition: transform 0.4s ease-out, opacity 0.4s ease-out;
-  pointer-events: none;
-}
-
-.card.revealed::before {
-  transform: scale(3);
-  opacity: 0;
-}
-
-.card:hover::before {
-  transform: scale(1.5);
-  opacity: 0.2;
-}
-*/
 
 .good {
    background: #90ecff;
@@ -144,23 +116,29 @@ body.game-over #endTurn {
 }
 
 button {
-    padding: 1.5rem 2rem;
-    border: none;
-    background-color: #000;
-    color: #fff;
-    cursor: pointer;
-    font-size: 105%;
+   padding: 1.5rem 2rem;
+   border: none;
+   background-color: #000;
+   color: #fff;
+   cursor: pointer;
+   font-size: 105%;
 }
 
 button:hover {
-    background-color: #333;
+   background-color: #333;
 }
 
 @media only screen and (max-width: 600px) {
-   html {
-      font-size: 80%;
-   }
    .board {
       gap: .2rem;
+   }
+   button {
+      font-size:100%;
+   }
+   #bottom {
+      grid-template-columns: repeat(2, 1fr);
+   }
+   .spacer1 {
+      display:none;
    }
 }
