@@ -273,13 +273,16 @@ function makeHint(matrix, words, stopwords, board, secret) {
    let best = {};
    for (let step = 0; step < words.length; step++) {
       const clue = words[step];
-      const lowerBound = nm[step] || 0;
+      let lowerBound = nm[step] || 0;
+      lowerBound = Math.max(lowerBound, -1); // Very small ips don't mean anything
       const scores = pm.getRow(step);
+
+      // TODO: Maybe sometimes it's OK to include a single bad word with a high score,
+      // if the `n` is large enough?
 
       // If the best score is lower than the lower bound, there is no reason
       // to even try it.
       if (stopwords.includes(clue)) {
-         // TODO: Also check for previously used cluses
          continue;
       }
       if (board.includes(clue.toUpperCase())) {
