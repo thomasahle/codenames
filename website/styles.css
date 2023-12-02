@@ -217,13 +217,19 @@ body.game-over #endTurn {
       grid-template-columns: repeat(2, 1fr);
    }
    .spacer1 {
-      display:none;
+      display: none;
+   }
+   .scoreboard > .spacer {
+      width: 20%;
    }
    #hint {
       margin: 0 .2rem;
    }
    .header-left, menu {
       width: auto;
+   }
+   .card {
+      padding: 20% 5% 10% 5%;
    }
 }
 
