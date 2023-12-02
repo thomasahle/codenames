@@ -22,11 +22,11 @@ body.round-over {
    background: #faf8f8;
 }
 
-body.game-won {
-   background: #fff9e2;
+body.game-win {
+   background: #fffae6;
 }
 body.game-lost {
-   background: ##ffefef;
+   background: #ffefef;
 }
 
 .container {

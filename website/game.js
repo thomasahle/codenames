@@ -188,7 +188,7 @@ async function main(date, datas) {
          let got = data.secret.filter(w => data.revealed.includes(w)).length;
          winLoseText.innerHTML = isWon(data)
             ? "Hurray! You Won!"
-            : `You got ${got} out of ${SECRETS}`;
+            : `You got ${got} out of ${SECRETS}.`;
       }
       else if (data.hints.length != 0) {
          const {clue, n} = data.hints[data.hints.length-1];
