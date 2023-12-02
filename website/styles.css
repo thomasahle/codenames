@@ -152,6 +152,7 @@ ol > li {
 .card span {
    display: block;
    padding: .5rem;
+   letter-spacing: .1rem;
    background: var(--card-light);
 }
 .bad span {
