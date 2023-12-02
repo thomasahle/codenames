@@ -1,3 +1,4 @@
+"use strict";
 
 // Check if the iOS version is at least 17
 if (!isIOSVersionAtLeast(16)) {
@@ -19,65 +20,112 @@ const SECRETS = 6;
 const MAX_ROUNDS = 6;
 
 
-/*
- * TODO:
- *
- * Easy:
- * X Don't use a word that's on the board
- * X Make sure the whole wordlist is included in the vecs
- * X Don't reuse hints
- * X Make hints work when we only have secrets left
- * X Don't allow clicking on something already clicked
- * X Last round must always have a large enough clue that winning is possible.
- * - Different backgorund color for when all clues are used vs making a mistake
- * - Nicer "next round" button
- *
- * Medium:
- * X A victory screen that is an overlay, like in Wordle
- * X Automatically show help the first time a user joins
- * X Write help text
- *
- * Harder:
- * - Support the user being the spy master (probably never)
- * X Scoreboard
- * X After the game, show a log of what clues the AI was going for
- * - One game a day, seeding (can go to previous days for more games)
- * - Save all user guesses
- * - Track user clicks
- * - Train model offline using gpt as guesser
- */
+function start() {
+   // This will be today's date or the date from the URL
+   const date = checkSetAndGetDateHash();
 
-async function start() {
+   // get all data from local storage
+   const datas = JSON.parse(localStorage.getItem('datas')) || {};
+
+   if (!(date in datas)) {
+      // Data prototype
+      datas[date] = {
+         board: [],
+         secret: [],
+         revealed: [],
+         hints: [], // Current and previous clues for each round
+         revealedThisRound: 0,
+         thinking: false,
+         roundOver: false,
+      };
+   }
+
+   main(date, datas);
+}
+
+function parseDate(dateStr) {
+   // By adding time, javascript parses the date as local time, rather than UTC
+   return new Date(dateStr + 'T00:00');
+}
+
+function checkSetAndGetDateHash() {
+   const dateFromHash = window.location.hash.substring(1); // Remove the '#' character
+   const dateRegex = /^\d{4}-\d{2}-\d{2}$/; // Simple regex for YYYY-MM-DD format
+   const today = new Date();
+   const inputDate = parseDate(dateFromHash);
+
+   // Check if the date matches the format and is not NaN, and is not in the future
+   if (!dateFromHash.match(dateRegex) || isNaN(inputDate.getTime()) || inputDate > today) {
+      const todayStr = today.toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+      window.location.hash = '#' + todayStr;
+      return todayStr;
+   }
+
+   return dateFromHash;
+}
+
+// If the user manually changes the hash, we restart
+window.addEventListener('hashchange', start);
+
+function isGameOver(data) {
+   return isWon(data) || isLost(data);
+}
+function isWon(data) {
+   return data.secret.every(w => data.revealed.includes(w));
+}
+function isLost(data) {
+   return data.roundOver && data.hints.length >= MAX_ROUNDS;
+}
+
+async function main(date, datas) {
+   console.log(`Starting game with date ${date}.`);
+
    // Element references
    const gameBoard = document.getElementById('gameBoard');
    const clueElem = document.getElementById('clue');
    const roundElem = document.getElementById('round');
    const endTurnButton = document.getElementById('endTurn');
-   const analysisDiv = document.getElementById('post-game-analysis');
+   const remainingCluesSpan = document.getElementById('remainingClues');
    const winLoseText = document.getElementById('win-lose-text');
 
-   const data = {
-      ai: {},  // matrix, words, stopwords
-      board: [],
-      secret: [],
-      revealed: [],
-      hints: [], // Current and previous clues for each round
-      revealedThisRound: 0,
-      thinking: false,
-      roundOver: false,
-   };
+   let ai = {};  // matrix, words, stopwords
+   const data = datas[date];
 
-   function isGameOver() {
-      return isWon() || isLost();
-   }
-   function isWon() {
-      return data.secret.every(w => data.revealed.includes(w));
-   }
-   function isLost() {
-      return data.roundOver && data.hints.length >= MAX_ROUNDS;
+   async function init() {
+      let wordlist = await wlprom;
+
+      // Sample board data from word list, if we don't already have it in the storage.
+      let usedSaved = false;
+      if (data.board.length != ROWS * COLS) {
+         const seed = parseDate(date).getTime() % 2147483647;
+         console.log(`Sampling new board from seed ${seed}.`);
+         data.board = sample(seed, wordlist, ROWS*COLS);
+         data.secret = sample(seed^326236988, data.board, SECRETS);
+      } else {
+         console.log(`Using saved board ${data.board}.`);
+         usedSaved = true;
+      }
+      console.log(data);
+      render();
+
+      // Wait till we've downloaded the wordvectors before we start the round.
+      // Would it be better to cache the ai to localStorage?
+      // It seems unnecessary as the browswer does its own caching.
+      const [matrix, words, stopwords] = await prom;
+      ai = {matrix, words, stopwords};
+
+      if (usedSaved) {
+         console.log("Not starting new round, because using saved state.");
+      } else {
+         newRound();
+      }
    }
 
    function render() {
+      // Since we call render every time we change something,
+      // this is a good time to save the state
+      localStorage.setItem('datas', JSON.stringify(datas));
+
       // Render board
       if (data.board.length > 0) {
          gameBoard.innerHTML = ''; // Clear existing board
@@ -106,32 +154,37 @@ async function start() {
          });
       }
 
-      // Other
+      // Set Round indicator
       roundElem.textContent = `Round ${data.hints.length} / ${MAX_ROUNDS}`;
 
-      // Next round
-      if (data.roundOver) {
-         endTurnButton.textContent = "Next round";
-      }
-      else if (data.hints.length != 0) {
+      // Set "n words remaining" text
+      if (data.hints.length != 0) {
          const {clue, n} = data.hints[data.hints.length-1];
-         endTurnButton.textContent = `Remaining: ${n - data.revealedThisRound}`;
+         let r = n - data.revealedThisRound;
+         let s = `pick ${r} more word`;
+         if (r != 1)
+            s += "s";
+         remainingCluesSpan.textContent = s;
       }
       document.body.classList.toggle("round-over", data.roundOver);
-      document.body.classList.toggle("game-over", isGameOver());
-      document.body.classList.toggle("game-lost", isLost());
-      document.body.classList.toggle("game-win", isWon());
+      document.body.classList.toggle("game-over", isGameOver(data));
+      document.body.classList.toggle("game-lost", isLost(data));
+      document.body.classList.toggle("game-win", isWon(data));
+      document.body.classList.toggle("today", parseDate(date).toDateString() === new Date().toDateString());
 
       // Clues
-      if (!data.ai) {
+      if (!ai) {
          clueElem.textContent = "Loading...";
          console.log('loading...');
       }
       else if (data.thinking) {
          clueElem.textContent = "Thinking...";
       }
-      else if (isGameOver()) {
-         winLoseText.innerHTML = isWon() ? "Congratulations, You Won!" : "Sorry, You Lost";
+      else if (isGameOver(data)) {
+         let got = data.secret.filter(w => data.revealed.includes(w)).length;
+         winLoseText.innerHTML = isWon(data)
+            ? "Hurray! You Won!"
+            : `You got ${got} out of ${SECRETS}`;
       }
       else if (data.hints.length != 0) {
          const {clue, n} = data.hints[data.hints.length-1];
@@ -139,9 +192,9 @@ async function start() {
       }
 
       // Footer
-      if (isGameOver()) {
-         let s = compileLog(data.hints, data.revealed, data.secret);
-         analysisDiv.innerHTML = s;
+      for (const span of document.getElementsByClassName("date")) {
+         const options = { year: 'numeric', month: 'long', day: 'numeric' };
+         span.textContent = parseDate(date).toLocaleDateString(undefined, options);
       }
    }
 
@@ -170,7 +223,7 @@ async function start() {
          data.roundOver = true;
       }
 
-      if (isGameOver()) {
+      if (isGameOver(data)) {
          onGameOver();
       }
 
@@ -178,7 +231,7 @@ async function start() {
    }
 
    function newRound() {
-      if (isGameOver()) {
+      if (isGameOver(data)) {
          console.log("Can't start new round. Game is over.");
          return;
       }
@@ -191,19 +244,26 @@ async function start() {
 
       const board = data.board.filter(w => !data.revealed.includes(w));
       const secret = data.secret.filter(w => !data.revealed.includes(w));
-      let stopwords = [...data.ai.stopwords];
+      let stopwords = [...ai.stopwords];
       // Don't repeat hints
       for (let hint of data.hints) {
          stopwords.push(hint.clue);
       }
 
       let agg = 0.6;  // Default aggressiveness = 0.6
+
+      // Let's adjust aggressiveness based on how well the user is doing
+      let got = data.secret.filter(w => data.revealed.includes(w)).length;
+      let success = got / data.revealed.length;
+      if (success <= .5)
+         agg = 0.3;
+
       // If this is the last round, we need to give a clue number high enough
       // that the user has a change to win.
       if (data.hints.length == MAX_ROUNDS - 1) {
          agg = 100;
       }
-      hint = makeHint(data.ai.matrix, data.ai.words, stopwords, board, secret, agg);
+      const hint = makeHint(ai.matrix, ai.words, stopwords, board, secret, agg);
       data.hints.push(hint);
 
       data.thinking = false;
@@ -218,8 +278,23 @@ async function start() {
       }
    }
 
+   document.getElementById('yesterdays-link').onclick = function() {
+      if (!isGameOver(data)) {
+         console.log("Should not be possible to click the link now.");
+         return;
+      }
+      const curDate = parseDate(date);
+      curDate.setDate(curDate.getDate() - 1); // Subtract one day
+      const yesterday = curDate.toISOString().split('T')[0];
+      window.location.hash = '#' + yesterday;
+   }
+
+   document.getElementById('todays-link').onclick = function() {
+      window.location.hash = '#';
+   }
+
    function onGameOver() {
-      if (!isGameOver()) {
+      if (!isGameOver(data)) {
          console.log("Error: Game is not over.");
          return;
       }
@@ -227,7 +302,7 @@ async function start() {
       let played = parseInt(localStorage.getItem('played') || '0') + 1;
       localStorage.setItem('played', played);
 
-      if (isWon()) {
+      if (isWon(data)) {
          let wins = parseInt(localStorage.getItem('wins') || '0') + 1;
          localStorage.setItem('wins', wins);
 
@@ -244,29 +319,11 @@ async function start() {
       // the statistics are open.
    }
 
-   async function init() {
-      let wordlist = await wlprom;
-      // TODO: Seed
-      shuffle(wordlist);
-      const board = wordlist.slice(0, ROWS*COLS)
-      const secret = board.slice(0, SECRETS)
-      shuffle(board);
-      console.log(secret);
-
-      data.board = board;
-      data.secret = secret;
-      render();
-
-      const [matrix, words, stopwords] = await prom;
-      data.ai = {matrix, words, stopwords};
-      newRound();
-   }
-
    init();
-   initMenu();
+   initMenu(data);
 }
 
-function initMenu() {
+function initMenu(gameData) {
    const statsButton = document.getElementById('stats-button');
    const statsLink = document.getElementById('stats-link');
    const helpButton = document.getElementById('help-button');
@@ -274,8 +331,9 @@ function initMenu() {
    const helpClose = document.getElementById('help-close');
    const statsModal = document.getElementById('stats-modal');
    const helpModal = document.getElementById('help-modal');
+   const analysisDiv = document.getElementById('post-game-analysis');
 
-   data = {
+   const data = {
       helpShown: false,
       statsShown: false,
    }
@@ -299,7 +357,7 @@ function initMenu() {
 
    helpClose.onclick = closeAll;
 
-   Array.from(document.getElementsByClassName("modal")).forEach(modal => {
+   for (const modal of document.getElementsByClassName("modal")) {
       // Only react on direct clicks, so we don't close the modal when
       // clicking in modal-inner.
       modal.onclick = function(event) {
@@ -307,7 +365,7 @@ function initMenu() {
             closeAll();
          }
       };
-   });
+   }
 
    document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
@@ -327,15 +385,20 @@ function initMenu() {
 
       // Get stats
       let played = localStorage.getItem('played') || 0;
-      let winPercentage = played > 0 ? (localStorage.getItem('wins') / played * 100).toFixed(0) : 0;
-      let currentStreak = localStorage.getItem('currentStreak') || 0;
-      let maxStreak = localStorage.getItem('maxStreak') || 0;
       document.getElementById('playedCount').textContent = played;
+      let winPercentage = played > 0 ? Math.round(localStorage.getItem('wins') / played * 100) : 0;
+      console.log(`Win P: ${winPercentage} = ${localStorage.getItem('wins')} / ${played} `);
       document.getElementById('winPercentage').textContent = winPercentage;
+
+      // I'm not actually using these stats right now...
+      // I guess I could just compute it based on the historical data,
+      // running through the whole thing and looking for streaks...
+      let currentStreak = localStorage.getItem('currentStreak') || 0;
       document.getElementById('currentStreak').textContent = currentStreak;
+      let maxStreak = localStorage.getItem('maxStreak') || 0;
       document.getElementById('maxStreak').textContent = maxStreak;
 
-      // Create bars
+      // Create bars. I like the bars.
       let distribution = JSON.parse(localStorage.getItem('guessDistribution'))
          || new Array(MAX_ROUNDS).fill(0);
       let guessDistributionContainer = document.getElementById('guessDistribution');
@@ -353,6 +416,15 @@ function initMenu() {
          barContainer.appendChild(bar);
          guessDistributionContainer.appendChild(barContainer);
       });
+
+      // Log of clues
+      if (isGameOver(gameData)) {
+         console.log("Making log");
+         analysisDiv.innerHTML = compileLog(gameData.hints, gameData.revealed, gameData.secret);
+      } else {
+         console.log("Making log");
+         analysisDiv.innerHTML = "<p>Come back here after the game.</p>";
+      }
    }
 
    // Show help on first visit
@@ -411,11 +483,27 @@ function fetchVectors(path) {
       .catch(error => console.error('Error loading file:', error));
 }
 
-function shuffle(array) {
-   for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+function sample(key, originalArray, n) {
+   // Certified random coefficients from random.org
+   const cs = [82304423, 346724810, 725211102, 50719932, 978969693, 1594878607];
+
+   // Polynomial random generator
+   function next() {
+      let result = cs[0];
+      for (let i = 1; i < cs.length; i++) {
+         result = result * key + cs[i];
+         result %= 2147483647;
+      }
+      key += 1; // Increment the key for the next call
+      return result;
+   }
+
+   const array = [...originalArray];
+   for (let i = 0; i < Math.min(n, array.length); i++) {
+      const j = i + next() % (array.length - i);
       [array[i], array[j]] = [array[j], array[i]];
    }
+   return array.slice(0, n)
 }
 
 
@@ -517,7 +605,7 @@ function makeHint(matrix, words, stopwords, board, secret, aggressiveness) {
 
 
 function compileLog(hints, revealed, secret) {
-   s = "<ol class=\"log-list\">";
+   let s = "<ol class=\"log-list\">";
    let j = 0;
    for (let i = 0; i < hints.length; i++) {
       let hint = hints[i];

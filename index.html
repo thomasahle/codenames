@@ -31,7 +31,7 @@
             <div id="clue">Loading...</div>
             <div class="info-text">
                <p id="win-lose-text"></p>
-               <p class="see-stats">See the Clues in <span class="link" id="stats-link">Statistics</span></p>
+               <p class="see-stats">See the clues in <span class="link" id="stats-link">Statistics</span></p>
             </div>
             <div class="spacer spacer-right" id="round"></div>
          </div>
@@ -39,8 +39,26 @@
          <div id="bottom">
             <span class="spacer1"></span>
             <span class="spacer2"></span>
-            <button id="endTurn">Next Round</button>
+            <div class="bottom-right">
+               <button id="endTurn" class="floating-circle">
+                  <i class="ti ti-player-track-next-filled"></i>
+                  Next Round</button>
+               <span id="remainingClues"></span>
+            </div>
          </div>
+         <footer>
+            <div class="div-after-game">
+               Come back tomorrow for a new game, or play
+               <span class="link" id="yesterdays-link">Yesterday's</span>
+            </div>
+            <div class="div-during-game not-today">
+               Showing <code>CODEWORDS</code> for <span class="date"></span>.
+               Go to <span class="link" id="todays-link">Todays's</span>.
+            </div>
+            <div class="div-during-game is-today">
+               <code>CODEWORDS</code> for <span class="date"></span>.
+            </div>
+         </footer>
       </div>
 
       <div id="help-modal" class="modal">
@@ -111,10 +129,8 @@
             <h3 class="gap-above">Rounds Used When Winning</h3>
             <div id="guessDistribution"></div>
 
-            <h3 class="gap-above">Intended Clues From Last Game</h3>
-            <div id="post-game-analysis">
-               <p>Come back here after the game.</p>
-            </div>
+            <h3 class="gap-above">Intended Clues From Game</h3>
+            <div id="post-game-analysis"></div>
          </div>
       </div>
    </body>

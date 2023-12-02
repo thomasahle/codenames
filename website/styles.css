@@ -39,6 +39,7 @@ header {
    border-bottom: 1px solid #d3d6da;
    display: flex;
    align-items: center;
+   background: white;
 }
 
 .header-left, menu {
@@ -125,7 +126,6 @@ a.has-title {
 }
 
 #bottom {
-   text-align: right;
    display: grid;
    grid-template-columns: repeat(3, 1fr);
    gap: 1rem;
@@ -226,34 +226,76 @@ button {
    cursor: pointer;
 }
 
-#endTurn {
-   padding: 1.5rem 2rem;
-   border: none;
-   background-color: #000;
-   color: #fff;
-   cursor: pointer;
-   font-size: 105%;
-   border-radius: 10px;
+.floating-circle {
+  display: flex;
+  gap: .5rem;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: -2rem;
+  right: -1rem;
+  height: 5rem;
+  padding: 1.5rem 2rem;
+  border-radius: 2.5rem;
+  background-color: black;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  text-align: center;
+  cursor: pointer;
+  z-index: 1000; /* Ensures it floats above other elements */
+  transition: transform 0.3s ease; /* Smooth transition for hover effect */
+  font-size: 105%;
+}
+.floating-circle i {
+   font-size: 200%;
 }
 
-#endTurn:hover {
-   background-color: #333;
+.floating-circle:hover {
+  transform: scale(1.1); /* Scales the button on hover */
+  background: #333;
 }
 
-body:not(.round-over) #endTurn {
-   background: #888;
-   cursor: auto;
+#bottom {
+   position: relative;
 }
+#remainingClues {
+   font-size: 110%;
+   padding-right: 1rem;
+}
+
+body:not(.round-over) #endTurn, body.game-over #endTurn {
+   visibility: hidden;
+}
+body.round-over #remainingClues, body.game-over #remainingClues {
+   visibility: hidden;
+}
+
 body.round-over .board {
    opacity: .9;
-}
-body.game-over #endTurn {
-   visibility: hidden;
 }
 body.game-over .info-text {
    display: block;
 }
 body.game-over #clue  {
+   display: none;
+}
+body:not(.game-over) .div-after-game {
+   display: none;
+}
+.div-during-game {
+   margin-top: 1rem
+}
+body.game-over .div-during-game {
+   display: none;
+}
+code {
+   font-family: "Courier New", monospace;
+   font-weight: bold;
+}
+body.today .not-today {
+   display: none;
+}
+body:not(.today) .is-today {
    display: none;
 }
 
@@ -287,6 +329,9 @@ body.game-over #clue  {
    }
    #clue {
       text-align: left;
+   }
+   .floating-circle {
+      right: 1rem;
    }
 }
 
