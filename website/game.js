@@ -303,13 +303,8 @@ async function main(date, datas) {
          return;
       }
 
-      let played = parseInt(localStorage.getItem('played') || '0') + 1;
-      localStorage.setItem('played', played);
-
       if (isWon(data)) {
-         let wins = parseInt(localStorage.getItem('wins') || '0') + 1;
-         localStorage.setItem('wins', wins);
-
+         // TODO: Could also just compute this based on saved game data
          let rounds = data.hints.length;
          let guessDistribution = JSON.parse(localStorage.getItem('guessDistribution'))
             || new Array(MAX_ROUNDS).fill(0);
@@ -324,10 +319,10 @@ async function main(date, datas) {
    }
 
    init();
-   initMenu(data);
+   initMenu(data, datas);
 }
 
-function initMenu(gameData) {
+function initMenu(gameData, allGameDatas) {
    const statsButton = document.getElementById('stats-button');
    const statsLink = document.getElementById('stats-link');
    const helpButton = document.getElementById('help-button');
@@ -388,19 +383,18 @@ function initMenu(gameData) {
       helpModal.style.display = data.helpShown ? "block" : "none";
 
       // Get stats
-      let played = localStorage.getItem('played') || 0;
+      const played = Object.keys(allGameDatas).filter(d => isGameOver(allGameDatas[d])).length;
+      const wins = Object.keys(allGameDatas).filter(d => isWon(allGameDatas[d])).length;
       document.getElementById('playedCount').textContent = played;
-      let winPercentage = played > 0 ? Math.round(localStorage.getItem('wins') / played * 100) : 0;
-      console.log(`Win P: ${winPercentage} = ${localStorage.getItem('wins')} / ${played} `);
+      let winPercentage = played > 0 ? Math.round(wins / played * 100) : 0;
       document.getElementById('winPercentage').textContent = winPercentage;
+      document.getElementById('winPercentage').setAttribute("title", `Won ${wins} / ${played}`);
 
-      // I'm not actually using these stats right now...
-      // I guess I could just compute it based on the historical data,
-      // running through the whole thing and looking for streaks...
-      let currentStreak = localStorage.getItem('currentStreak') || 0;
+      // Compute streaks from dates
+      const {longestStreak, longestEnd, currentStreak} = findStreaks(allGameDatas);
       document.getElementById('currentStreak').textContent = currentStreak;
-      let maxStreak = localStorage.getItem('maxStreak') || 0;
-      document.getElementById('maxStreak').textContent = maxStreak;
+      document.getElementById('maxStreak').textContent = longestStreak;
+      document.getElementById('maxStreak').setAttribute("title", `Streak ended ${longestEnd}`);
 
       // Create bars. I like the bars.
       let distribution = JSON.parse(localStorage.getItem('guessDistribution'))
@@ -653,6 +647,63 @@ function compileLog(hints, revealed, secret) {
    }
    s += "</ol>";
    return s;
+}
+
+function findStreaks(datesObject) {
+   // Filter the object keys based on isGameOver, then convert to date objects and sort them
+   const dates = Object.keys(datesObject)
+      .filter(key => isGameOver(datesObject[key]))
+      .map(date => parseDate(date))
+      .sort((a, b) => a - b);
+
+   if (dates.length == 0) {
+      return {
+         longestStreak: 0,
+         longestEnd: null,
+         currentStreak: 0
+      };
+   }
+
+   let longestStreak = 0;
+   let currentStreak = 0;
+   let longestEnd = null;
+   let tempStreak = 1;
+
+   for (let i = 1; i < dates.length; i++) {
+      // Check if the current date is consecutive
+      // Apparently this is OK in Javascript without leap-second issues(?)
+      if (dates[i] - dates[i - 1] === 86400000) { // 86400000ms = 1 day
+         tempStreak++;
+      } else {
+         // Update the longest streak if needed
+         if (tempStreak > longestStreak) {
+            longestStreak = tempStreak;
+            longestEnd = dates[i - 1];
+         }
+         tempStreak = 1;
+      }
+   }
+
+   // Check the last streak
+   if (tempStreak > longestStreak) {
+      longestStreak = tempStreak;
+      longestEnd = dates[dates.length - 1];
+   }
+
+   // Determine the current streak
+   let today = new Date();
+   today.setHours(0, 0, 0, 0); // Normalize today's date
+
+   while (dates.filter((d) => d - today == 0).length == 1) {
+      currentStreak++;
+      today.setDate(today.getDate() - 1);
+   }
+
+   return {
+      longestStreak,
+      longestEnd: longestEnd ? longestEnd.toISOString().split('T')[0] : null,
+      currentStreak
+   };
 }
 
 // Utils
