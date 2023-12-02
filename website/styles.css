@@ -116,7 +116,7 @@ a.has-title {
 }
 
 #clue, .info-text {
-   font-size: 110%;
+   font-size: larger;
    flex: 1 1 0;
 }
 #clue > span {
