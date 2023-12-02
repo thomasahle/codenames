@@ -96,7 +96,7 @@ a.has-title {
    border-bottom: 1px solid #d3d6da;
 
    display: flex;
-   align-items: center;
+   align-items: flex-end;
 }
 
 .scoreboard > .spacer {
@@ -264,7 +264,7 @@ body.game-over .see-stats {
       display: none;
    }
    .scoreboard > .spacer {
-      width: 20%;
+      width: 6rem;
    }
    #hint {
       margin: 0 .2rem;
@@ -274,6 +274,12 @@ body.game-over .see-stats {
    }
    .card {
       padding: 20% 5% 10% 5%;
+   }
+   .spacer-left {
+      display: none;
+   }
+   #clue {
+      text-align: left;
    }
 }
 
