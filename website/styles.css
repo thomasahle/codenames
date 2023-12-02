@@ -350,7 +350,7 @@ body.game-over .see-stats {
 }
 .number-label {
    font-size: 60%;
-   width: 5rem;
+   width: 3rem;
 }
 
 #guessDistribution {
