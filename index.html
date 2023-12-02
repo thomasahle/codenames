@@ -36,14 +36,17 @@
             <span class="spacer2"></span>
             <button id="endTurn">Next Round</button>
          </div>
-         <footer id="hint" class="hint"></footer>
+         <footer><p class="see-stats">
+            See the Clues in <span class="link" id="stats-link">Statistics</span>
+            </p></footer>
       </div>
 
       <div id="help-modal" class="modal">
         <div class="modal-content">
            <h2>How to play</h2>
           <button id="help-close" class="close">&times;</button>
-          <h3>Find the secret 6 words from the clues.</h3>
+
+          <h3>Find the secret 6 words in 6 tries.</h3>
           <ul>
              <li>Each clue consists of a <b>word</b> and a <b>number</b>.</li>
              <li>Tap the cards that match the theme of the clue.</li>
@@ -70,8 +73,8 @@
              Round ended after <b>3</b> guesses of the secret words.
           </p>
           <p class="gap-under">
-          The bot considers words similar if they are often used in the same context.
-          moderate can be a clue for degree, or boom for <a title="Boom Shack-A-Lak" class="has-title" href="https://en.wikipedia.org/wiki/Boom_Shack-A-Lak">shack</a>.
+             The bot considers words similar if they are often used in the same context.
+             moderate can be a clue for degree, or boom for <a title="Boom Shack-A-Lak" class="has-title" href="https://en.wikipedia.org/wiki/Boom_Shack-A-Lak">shack</a>.
           </p>
           <p>
              A new puzzle is released daily at midnight.
@@ -80,11 +83,37 @@
       </div>
 
       <div id="stats-modal" class="modal">
-        <div class="modal-content">
-           <h2>Statistics</h2>
-          <button id="stats-close" class="close">&times;</button>
-          <p>Some text in the stats Modal..</p>
-        </div>
+         <div class="modal-content">
+            <h2>Statistics</h2>
+            <button id="stats-close" class="close">&times;</button>
+
+            <div id="statsContainer" class="statsContainer">
+               <div class="statsItem">
+                  <span class="big-number" id="playedCount">0</span>
+                  <span class="number-label">Played</span>
+               </div>
+               <div class="statsItem">
+                  <span class="big-number" id="winPercentage">0</span>
+                  <span class="number-label">Win %</span>
+               </div>
+               <div class="statsItem">
+                  <span class="big-number" id="currentStreak">0</span>
+                  <span class="number-label">Current Streak</span>
+               </div>
+               <div class="statsItem">
+                  <span class="big-number" id="maxStreak">0</span>
+                  <span class="number-label">Max Streak</span>
+               </div>
+            </div>
+
+            <h3 class="gap-above">Guess Distribution</h3>
+            <div id="guessDistribution"></div>
+
+            <h3 class="gap-above">Intended Clues from Last Game</h3>
+            <div id="post-game-analysis">
+               <p>Come back here after the game.</p>
+            </div>
+         </div>
       </div>
    </body>
 </html>

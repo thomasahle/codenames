@@ -16,6 +16,7 @@ const wlprom = fetchWords(root + '/wordlist');
 const ROWS = 6;
 const COLS = 3;
 const SECRETS = 6;
+const MAX_ROUNDS = 6;
 
 
 /*
@@ -29,6 +30,7 @@ const SECRETS = 6;
  * X Make hints work when we only have secrets left
  * X Don't allow clicking on something already clicked
  * - Consider a "new game" button?
+ * - Last round must always have a large enough clue that winning is possible.
  *
  * Medium:
  * - One game a day, seeding
@@ -50,7 +52,7 @@ async function start() {
    const clueElem = document.getElementById('clue');
    const roundElem = document.getElementById('round');
    const endTurnButton = document.getElementById('endTurn');
-   const hintFooter = document.getElementById('hint');
+   const analysisDiv = document.getElementById('post-game-analysis');
 
    const data = {
       ai: {},  // matrix, words, stopwords
@@ -64,7 +66,13 @@ async function start() {
    };
 
    function isGameOver() {
+      return isWon() || isLost();
+   }
+   function isWon() {
       return data.secret.every(w => data.revealed.includes(w));
+   }
+   function isLost() {
+      return data.roundOver && data.hints.length >= MAX_ROUNDS;
    }
 
    function render() {
@@ -97,7 +105,7 @@ async function start() {
       }
 
       // Other
-      roundElem.textContent = `Round ${data.hints.length}`;
+      roundElem.textContent = `Round ${data.hints.length} / ${MAX_ROUNDS}`;
 
       // Next round
       if (data.roundOver) {
@@ -109,6 +117,8 @@ async function start() {
       }
       document.body.classList.toggle("round-over", data.roundOver);
       document.body.classList.toggle("game-over", isGameOver());
+      document.body.classList.toggle("game-lost", isLost());
+      document.body.classList.toggle("game-win", isWon());
 
       // Clues
       if (!data.ai) {
@@ -118,8 +128,11 @@ async function start() {
       else if (data.thinking) {
          clueElem.textContent = "Thinking...";
       }
-      else if (isGameOver()) {
+      else if (isWon()) {
          clueElem.textContent = "Congratulations, You Won!";
+      }
+      else if (isLost()) {
+         clueElem.textContent = "Sorry, You Lost.";
       }
       else if (data.hints.length != 0) {
          const {clue, n} = data.hints[data.hints.length-1];
@@ -128,8 +141,8 @@ async function start() {
 
       // Footer
       if (isGameOver()) {
-         const s = compileLog(data.hints, data.revealed, data.secret);
-         hintFooter.innerHTML = s;
+         let s = compileLog(data.hints, data.revealed, data.secret);
+         analysisDiv.innerHTML = s;
       }
    }
 
@@ -158,6 +171,10 @@ async function start() {
          data.roundOver = true;
       }
 
+      if (isGameOver()) {
+         onGameOver();
+      }
+
       render();
    }
 
@@ -180,7 +197,14 @@ async function start() {
          // Don't reuse the hint you just used.
          stopwords.push(data.hints[data.hints.length-1].clue);
       }
-      hint = makeHint(data.ai.matrix, data.ai.words, stopwords, board, secret);
+
+      let agg = 0.6;  // Default aggressiveness = 0.6
+      // If this is the last round, we need to give a clue number high enough
+      // that the user has a change to win.
+      if (data.hints.length == MAX_ROUNDS - 1) {
+         agg = 100;
+      }
+      hint = makeHint(data.ai.matrix, data.ai.words, stopwords, board, secret, agg);
       data.hints.push(hint);
 
       data.thinking = false;
@@ -195,7 +219,31 @@ async function start() {
       }
    }
 
+   function onGameOver() {
+      if (!isGameOver()) {
+         console.log("Error: Game is not over.");
+         return;
+      }
 
+      let played = parseInt(localStorage.getItem('played') || '0') + 1;
+      localStorage.setItem('played', played);
+
+      if (isWon()) {
+         let wins = parseInt(localStorage.getItem('wins') || '0') + 1;
+         localStorage.setItem('wins', wins);
+
+         let rounds = data.hints.length;
+         let guessDistribution = JSON.parse(localStorage.getItem('guessDistribution'))
+            || new Array(MAX_ROUNDS).fill(0);
+         guessDistribution[rounds - 1] = (guessDistribution[rounds - 1] || 0) + 1;
+         localStorage.setItem('guessDistribution', JSON.stringify(guessDistribution));
+      }
+
+      // Ideally we should re-render the statistics here.
+      // We can't actually do this with our design.
+      // But it's ok, because the game can't end while
+      // the statistics are open.
+   }
 
    async function init() {
       let wordlist = await wlprom;
@@ -221,6 +269,7 @@ async function start() {
 
 function initMenu() {
    const statsButton = document.getElementById('stats-button');
+   const statsLink = document.getElementById('stats-link');
    const helpButton = document.getElementById('help-button');
    const statsClose = document.getElementById('stats-close');
    const helpClose = document.getElementById('help-close');
@@ -237,28 +286,27 @@ function initMenu() {
       render();
    }
 
-   statsClose.onclick = function() {
-      data.statsShown = false;
+   statsLink.onclick = function() {
+      data.statsShown = true;
       render();
    }
+
+   statsClose.onclick = closeAll;
 
    helpButton.onclick = function() {
       data.helpShown = true;
       render();
    }
 
-   helpClose.onclick = function() {
-      data.helpShown = false;
-      render();
-   }
+   helpClose.onclick = closeAll;
 
    Array.from(document.getElementsByClassName("modal")).forEach(modal => {
       // Only react on direct clicks, so we don't close the modal when
       // clicking in modal-inner.
       modal.onclick = function(event) {
-          if (event.target === modal) {
-             closeAll();
-          }
+         if (event.target === modal) {
+            closeAll();
+         }
       };
    });
 
@@ -277,6 +325,35 @@ function initMenu() {
    function render() {
       statsModal.style.display = data.statsShown ? "block" : "none";
       helpModal.style.display = data.helpShown ? "block" : "none";
+
+      // Get stats
+      let played = localStorage.getItem('played') || 0;
+      let winPercentage = played > 0 ? (localStorage.getItem('wins') / played * 100).toFixed(0) : 0;
+      let currentStreak = localStorage.getItem('currentStreak') || 0;
+      let maxStreak = localStorage.getItem('maxStreak') || 0;
+      document.getElementById('playedCount').textContent = played;
+      document.getElementById('winPercentage').textContent = winPercentage;
+      document.getElementById('currentStreak').textContent = currentStreak;
+      document.getElementById('maxStreak').textContent = maxStreak;
+
+      // Create bars
+      let distribution = JSON.parse(localStorage.getItem('guessDistribution'))
+         || new Array(MAX_ROUNDS).fill(0);
+      let guessDistributionContainer = document.getElementById('guessDistribution');
+      guessDistributionContainer.innerHTML = '';
+      distribution.forEach((count, index) => {
+         let barContainer = document.createElement('div');
+         barContainer.className = 'guessBar-container';
+         barContainer.innerHTML = `<div class="row-label">${index+1}</div>`;
+         let bar = document.createElement('div');
+         bar.className = 'guessBar';
+         let percent = count / Math.max(...distribution) * 100;
+         let width = count > 0 ? `${percent.toFixed(2)}%` : '0%';
+         bar.style.width = `calc(max(1rem, ${width}))`;
+         bar.innerHTML = `<span>${count}</span>`;
+         barContainer.appendChild(bar);
+         guessDistributionContainer.appendChild(barContainer);
+      });
    }
 
    // Show help on first visit
@@ -352,9 +429,18 @@ function findVector(words, word) {
    return index;
 }
 
-function makeHint(matrix, words, stopwords, board, secret) {
+function makeHint(matrix, words, stopwords, board, secret, aggressiveness) {
+   /* The algorithm uses the following formula for scoring clues:
+    * gap * (n^agg - 1)
+    * Where `gap` is the gap in inner products between the worst "good" word
+    * and the best "bad" word.
+    * `n` is the size of the clue, and agg is the aggressiveness.
+    *
+    * So if agg = 0, we only look at the `gap`.
+    * If agg = inf, we only care about `n`.
+    * Default agg should be around 0.6.
+    */
    console.log("Thinking...");
-   console.log(matrix);
 
    const avoids = board.filter(word => !secret.includes(word));
    console.log(avoids);
@@ -414,7 +500,7 @@ function makeHint(matrix, words, stopwords, board, secret) {
       n = parseInt(n);
       console.log(`N: ${n+1}, Gap: ${gap}, Clue: ${clue}, Lb: ${lowerBound}`);
       console.log(scores);
-      let combinedScore = gap * (Math.pow(n+1, agg) - 0.99);
+      let combinedScore = gap * (Math.pow(n+1, aggressiveness) - 0.99);
       console.log(`Combined Score: ${combinedScore}`);
 
       let indices = [...scores.keys()];
@@ -432,48 +518,47 @@ function makeHint(matrix, words, stopwords, board, secret) {
 
 
 function compileLog(hints, revealed, secret) {
-   let s = "<h2>The intended clues:</h2>";
-   s += "<ol class=\"log-list\">";
+   s = "<ol class=\"log-list\">";
    let j = 0;
    for (let i = 0; i < hints.length; i++) {
-       let hint = hints[i];
-       s += `<li><p>Round ${i + 1} Clue: <b>${hint.clue.toUpperCase()}</b> ${hint.n}</p>`;
-       s += "<ul class=\"card-list\">";
+      let hint = hints[i];
+      s += `<li><p>Round ${i + 1} Clue: <b>${hint.clue.toUpperCase()} ${hint.n}</b></p>`;
+      s += "<ul class=\"card-list\">";
 
-       let guessed = [];
-       while (
-          j !== revealed.length           // Finished game
-          && secret.includes(revealed[j]) // Finished 
-          && guessed.length != hint.n     // Finished without a mistake
-       ) {
-           guessed.push(revealed[j]);
-           j++;
-       }
+      let guessed = [];
+      while (
+         j !== revealed.length           // Finished game
+         && secret.includes(revealed[j]) // Finished 
+         && guessed.length != hint.n     // Finished without a mistake
+      ) {
+         guessed.push(revealed[j]);
+         j++;
+      }
 
-       let mistake = null;
-       if (j !== revealed.length && guessed.length != hint.n) {
-           mistake = revealed[j];
-           j++;
-       }
+      let mistake = null;
+      if (j !== revealed.length && guessed.length != hint.n) {
+         mistake = revealed[j];
+         j++;
+      }
 
-       let intended = hint.intendedClues;
-       for (let word of intended) {
-           if (!guessed.includes(word)) {
-               s += `<li class="small-card">${word}<span>(Intended clue)</span></li>`;
-           }
-       }
-       for (let word of guessed) {
-           if (intended.includes(word)) {
-               s += `<li class="small-card good">${word}<span>(Guessed and Intended)</span></li>`;
-           } else {
-               s += `<li class="small-card good">${word}<span>(Guessed by chance)</span></li>`;
-           }
-       }
-       if (mistake !== null) {
-           s += `<li class="small-card bad">${mistake}<span>(Incorrect)</span></li>`;
-       }
+      let intended = hint.intendedClues;
+      for (let word of intended) {
+         if (!guessed.includes(word)) {
+            s += `<li class="small-card">${word}<span>(Intended clue)</span></li>`;
+         }
+      }
+      for (let word of guessed) {
+         if (intended.includes(word)) {
+            s += `<li class="small-card good">${word}<span>(Guessed and Intended)</span></li>`;
+         } else {
+            s += `<li class="small-card good">${word}<span>(Guessed by chance)</span></li>`;
+         }
+      }
+      if (mistake !== null) {
+         s += `<li class="small-card bad">${mistake}<span>(Incorrect)</span></li>`;
+      }
 
-       s += "</ul></li>";
+      s += "</ul></li>";
    }
    s += "</ol>";
    return s;
@@ -481,14 +566,14 @@ function compileLog(hints, revealed, secret) {
 
 // Utils
 function isIOSVersionAtLeast(version) {
-    const ua = window.navigator.userAgent;
-    const ios = ua.match(/OS (\d+)_/);
+   const ua = window.navigator.userAgent;
+   const ios = ua.match(/OS (\d+)_/);
 
-    if (ios && ios.length > 1) {
-        const iosVersion = parseInt(ios[1], 10);
-        return iosVersion >= version;
-    }
+   if (ios && ios.length > 1) {
+      const iosVersion = parseInt(ios[1], 10);
+      return iosVersion >= version;
+   }
 
    // If not iOS, we are fine
-    return true;
+   return true;
 }
