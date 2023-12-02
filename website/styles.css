@@ -12,7 +12,7 @@
    padding: 0;
    box-sizing: border-box;
 }
-body, h1, p, button {
+body, h1, button {
    margin: 0;
    padding: 0;
    font-family: "Helvetica Neue", sans-serif;
@@ -59,6 +59,34 @@ h1 {
    font-family: "Courier New", monospace;
 }
 
+h2 {
+   margin-bottom: 1rem;
+}
+
+ul, h3 {
+   margin-bottom: 1rem;
+}
+h3 {
+   font-weight: normal;
+}
+p {
+   margin-bottom: .3rem;
+}
+ul {
+   padding-left: 1rem;
+}
+li {
+   margin-bottom: 4px;
+}
+p.gap-under{
+   margin-bottom: 1rem;
+}
+a.has-title {
+   text-decoration: none;
+   color: black;
+   border-bottom: 1px solid silver;
+}
+
 .scoreboard {
    padding: .7rem;
    margin-bottom: 1rem;
@@ -91,19 +119,20 @@ h1 {
    grid-template-columns: repeat(3, 1fr);
    gap: 1rem;
 }
-ol {
+.log-list {
    text-align: left;
 }
-ul, ol {
+.log-list, .card-list {
    list-style-type: none;
    margin: 0;
    padding: 0;
 }
-ul {
+.card-list {
    display: flex;
+   gap: .3rem;
 }
-ol > li {
-   margin-bottom: 1rem;
+.card-list {
+   margin-bottom: .3rem;
 }
 .small-card {
    display: flex;
@@ -114,7 +143,6 @@ ol > li {
    width: 7rem;
    font-size: 80%;
    height: 3rem;
-   margin: .3rem .3rem 0 0;
    text-align: center;
    background-color: var(--card-color);
    border-radius: 4px;
@@ -203,6 +231,9 @@ button {
 body:not(.round-over) #endTurn {
    background: #888;
    cursor: auto;
+}
+body.round-over .board {
+   opacity: .9;
 }
 body.game-over #endTurn {
    visibility: hidden;

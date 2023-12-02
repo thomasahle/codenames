@@ -43,7 +43,39 @@
         <div class="modal-content">
            <h2>How to play</h2>
           <button id="help-close" class="close">&times;</button>
-          <p>Some text in the help Modal..</p>
+          <h3>Find the secret 6 words from the clues.</h3>
+          <ul>
+             <li>Each clue consists of a <b>word</b> and a <b>number</b>.</li>
+             <li>Tap the cards that match the theme of the clue.</li>
+          </ul>
+
+          <p>Example: <b>HAT 2</b></p>
+          <ul class="card-list">
+             <li class="small-card good">HEAD<span>(Guessed &amp; Intended)</span></li>
+             <li class="small-card">FACE<span>(Intended clue)</li>
+             <li class="small-card bad">JUPITER<span>(Incorrect)</span></li>
+          </ul>
+          <p class="gap-under">
+            Round ended after guessing JUPITER.
+          </p>
+
+          <p>Example: <b>LODGE 3</b></p>
+          <ul class="card-list">
+             <li class="small-card good">POOL<span>(Guessed &amp; Intended)</span></li>
+             <li class="small-card good">KING<span>(Guessed &amp; Intended)</span></li>
+             <li class="small-card">EAGLE<span>(Intended clue)</span></li>
+             <li class="small-card good">GERMANY<span>(Guessed by chance)</span></li>
+          </ul>
+          <p class="gap-under">
+             Round ended after <b>3</b> guesses of the secret words.
+          </p>
+          <p class="gap-under">
+          The bot considers words similar if they are often used in the same context.
+          moderate can be a clue for degree, or boom for <a title="Boom Shack-A-Lak" class="has-title" href="https://en.wikipedia.org/wiki/Boom_Shack-A-Lak">shack</a>.
+          </p>
+          <p>
+             A new puzzle is released daily at midnight.
+          </p>
         </div>
       </div>
 

@@ -130,8 +130,6 @@ async function start() {
       if (isGameOver()) {
          const s = compileLog(data.hints, data.revealed, data.secret);
          hintFooter.innerHTML = s;
-      } else {
-         hintFooter.textContent = "Hint: The AI considers words similar if they are often used in the same sentences. e.g. \"moderate\" might be a hint for \"degree\", or \"truck\" for \"bike\".";
       }
    }
 
@@ -143,6 +141,7 @@ async function start() {
       }
       if (data.thinking) {
          console.log("Please wait...");
+         return;
       }
       if (data.revealed.includes(word)) {
          return;
@@ -254,7 +253,13 @@ function initMenu() {
    }
 
    Array.from(document.getElementsByClassName("modal")).forEach(modal => {
-      modal.onclick = closeAll;
+      // Only react on direct clicks, so we don't close the modal when
+      // clicking in modal-inner.
+      modal.onclick = function(event) {
+          if (event.target === modal) {
+             closeAll();
+          }
+      };
    });
 
    document.addEventListener('keydown', (event) => {
@@ -272,6 +277,13 @@ function initMenu() {
    function render() {
       statsModal.style.display = data.statsShown ? "block" : "none";
       helpModal.style.display = data.helpShown ? "block" : "none";
+   }
+
+   // Show help on first visit
+   if (localStorage.getItem('hasVisited') === null) {
+      data.helpShown = true;
+      render();
+      localStorage.setItem('hasVisited', 'true');
    }
 }
 
@@ -421,12 +433,12 @@ function makeHint(matrix, words, stopwords, board, secret) {
 
 function compileLog(hints, revealed, secret) {
    let s = "<h2>The intended clues:</h2>";
-   s += "<ol class=\"log\">";
+   s += "<ol class=\"log-list\">";
    let j = 0;
    for (let i = 0; i < hints.length; i++) {
        let hint = hints[i];
-       s += `<li><span>Round ${i + 1} Clue: <b>${hint.clue.toUpperCase()}</b> ${hint.n}</span>`;
-       s += "<ul>";
+       s += `<li><p>Round ${i + 1} Clue: <b>${hint.clue.toUpperCase()}</b> ${hint.n}</p>`;
+       s += "<ul class=\"card-list\">";
 
        let guessed = [];
        while (
