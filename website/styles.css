@@ -2,6 +2,9 @@
     --good-color: #ebca47;
     --bad-color: #5c4f4f;
     --card-color: #efede9;
+    --card-light: #f5f4f3;
+    --bad-light: #534846;
+    --good-light: #f4d146;
 }
 
 * {
@@ -12,7 +15,7 @@
 body, h1, p, button {
    margin: 0;
    padding: 0;
-   font-family: sans-serif;
+   font-family: "Helvetica Neue", sans-serif;
 }
 
 body {
@@ -34,8 +37,8 @@ body.game-over {
 
 header {
    margin-bottom: 2rem;
-   display: flex;
    border-bottom: 1px solid #d3d6da;
+   display: flex;
    align-items: center;
 }
 
@@ -58,18 +61,24 @@ h1 {
 
 .scoreboard {
    padding: .7rem;
-   background-color: #eee;
    margin-bottom: 1rem;
-   position: relative;
    text-align: center;
+   border-bottom: 1px solid #d3d6da;
+
+   display: flex;
+   align-items: center;
 }
 
-#round {
-   position: absolute;
-   left: 1.7rem;
+.scoreboard > .spacer {
+   width: 7rem;
 }
 
 #clue {
+   font-size: 110%;
+   flex: 1 1 0;
+}
+#clue > span {
+   font-weight: bold;
    font-size: 110%;
 }
 
@@ -97,15 +106,23 @@ ol > li {
 }
 .small-card {
    display: flex;
+   flex-direction: column;
    justify-content: center;
    align-items: center;
-   padding: 4px;
+   padding: 6px;
    width: 7rem;
    font-size: 80%;
    height: 3rem;
    margin: .3rem .3rem 0 0;
    text-align: center;
    background-color: var(--card-color);
+   border-radius: 4px;
+}
+.small-card span {
+   background: transparent !important;
+   font-size: 80%;
+   opacity: .7;
+   margin-top: 1px;
 }
 
 
@@ -121,16 +138,27 @@ ol > li {
 }
 
 .card {
-   padding: 20% 10%;
+   padding: 20% 10% 10% 10%;
    background-color: var(--card-color);
    border-radius: 5px;
    font-size: larger;
-   font-weight: bold;
+   font-weight: 500;
    cursor: pointer;
    text-transform: uppercase;
    position: relative;
    overflow: hidden;
    text-align: center;
+}
+.card span {
+   display: block;
+   padding: .5rem;
+   background: var(--card-light);
+}
+.bad span {
+   background: var(--bad-light);
+}
+.good span {
+   background: var(--good-light);
 }
 
 body.round-over .card {

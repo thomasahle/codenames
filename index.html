@@ -3,18 +3,18 @@
    <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Codenames AI Game</title>
+      <title>Codenames BOT AI</title>
 
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-      <link rel="stylesheet" href="styles.css">
+      <link rel="stylesheet" href="website/styles.css">
 
       <script src="https://unpkg.com/ml-matrix@6.10.8/matrix.umd.js"></script>
-      <script src="game.js"></script>
+      <script src="website/game.js"></script>
    </head>
    <body onload="start()">
       <header>
          <div class="header-left"></div>
-         <h1>AI CODENAMES</h1>
+         <h1>CODENAMES BOT</h1>
          <menu>
             <button id="help-button">
                <i class="ti ti-help"></i>
@@ -26,9 +26,9 @@
       </header>
       <div class="container">
          <div class="scoreboard">
-            <span id="round"></span>
+            <span class="spacer" id="round"></span>
             <span id="clue">Loading...</span>
-            <span></span>
+            <span class="spacer"></span>
          </div>
          <div id="gameBoard" class="board"></div>
          <div id="bottom">

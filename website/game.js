@@ -5,7 +5,7 @@ if (!isIOSVersionAtLeast(17)) {
 }
 
 // Start heavy promises
-const root = '/codenames/website/model';
+const root = '/website/model';
 const prom = Promise.all([
    fetchVectors(root + '/vecs.gz'),
    fetchWordsGz(root + '/words.gz'),
@@ -75,7 +75,10 @@ async function start() {
          data.board.forEach(word => {
             const cardElement = document.createElement('div');
             cardElement.className = 'card';
-            cardElement.textContent = word;
+
+            const cardSpan = document.createElement('span');
+            cardSpan.textContent = word;
+            cardElement.appendChild(cardSpan);
 
             cardElement.onclick = () => handleCardClick(word);
 
@@ -120,7 +123,7 @@ async function start() {
       }
       else if (data.hints.length != 0) {
          const {clue, n} = data.hints[data.hints.length-1];
-         clueElem.textContent = `Clue: ${clue.toUpperCase()} ${n} `;
+         clueElem.innerHTML = `Clue: <span>${clue.toUpperCase()} ${n}</span>`;
       }
 
       // Footer
@@ -444,18 +447,18 @@ function compileLog(hints, revealed, secret) {
        let intended = hint.intendedClues;
        for (let word of intended) {
            if (!guessed.includes(word)) {
-               s += `<li class="small-card">${word}<br>(Intended clue)</li>`;
+               s += `<li class="small-card">${word}<span>(Intended clue)</span></li>`;
            }
        }
        for (let word of guessed) {
            if (intended.includes(word)) {
-               s += `<li class="small-card good">${word}<br>(Guessed and Intended)</li>`;
+               s += `<li class="small-card good">${word}<span>(Guessed and Intended)</span></li>`;
            } else {
-               s += `<li class="small-card good">${word}<br>(Guessed by chance)</li>`;
+               s += `<li class="small-card good">${word}<span>(Guessed by chance)</span></li>`;
            }
        }
        if (mistake !== null) {
-           s += `<li class="small-card bad">${mistake}<br>(Incorrect)</li>`;
+           s += `<li class="small-card bad">${mistake}<span>(Incorrect)</span></li>`;
        }
 
        s += "</ul></li>";
