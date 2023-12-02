@@ -36,7 +36,7 @@ function start() {
          hints: [], // Current and previous clues for each round
          revealedThisRound: 0,
          thinking: false,
-         roundOver: false,
+         roundOver: true,
       };
    }
 
@@ -114,9 +114,13 @@ async function main(date, datas) {
       const [matrix, words, stopwords] = await prom;
       ai = {matrix, words, stopwords};
 
-      if (usedSaved) {
-         console.log("Not starting new round, because using saved state.");
-      } else {
+      if (isGameOver(data)) {
+         console.log("Not starting new round, because game is already over.");
+      }
+      else if (!data.roundOver && !data.thinking) {
+         console.log("Not starting new round, because we already seem to be in a round.");
+      }
+      else {
          newRound();
       }
    }
