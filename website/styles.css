@@ -80,6 +80,7 @@ h1 {
 #clue > span {
    font-weight: bold;
    font-size: 110%;
+   letter-spacing: .1rem;
 }
 
 #bottom {
