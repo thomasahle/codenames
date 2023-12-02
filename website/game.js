@@ -30,18 +30,18 @@ const MAX_ROUNDS = 6;
  * X Make hints work when we only have secrets left
  * X Don't allow clicking on something already clicked
  * - Consider a "new game" button?
- * - Last round must always have a large enough clue that winning is possible.
+ * X Last round must always have a large enough clue that winning is possible.
  *
  * Medium:
  * - One game a day, seeding
- * - A victory screen that is an overlay, like in Wordle
- * - Automatically show help the first time a user joins
- * - Write help text
+ * X A victory screen that is an overlay, like in Wordle
+ * X Automatically show help the first time a user joins
+ * X Write help text
  *
  * Harder:
  * - Support the user being the spy master
  * - Save all user guesses
- * - Scoreboard
+ * X Scoreboard
  * - Track user clicks
  * X After the game, show a log of what clues the AI was going for
  */
@@ -53,6 +53,7 @@ async function start() {
    const roundElem = document.getElementById('round');
    const endTurnButton = document.getElementById('endTurn');
    const analysisDiv = document.getElementById('post-game-analysis');
+   const winLoseText = document.getElementById('win-lose-text');
 
    const data = {
       ai: {},  // matrix, words, stopwords
@@ -128,11 +129,8 @@ async function start() {
       else if (data.thinking) {
          clueElem.textContent = "Thinking...";
       }
-      else if (isWon()) {
-         clueElem.textContent = "Congratulations, You Won!";
-      }
-      else if (isLost()) {
-         clueElem.textContent = "Sorry, You Lost.";
+      else if (isGameOver()) {
+         winLoseText.innerHTML = isWon() ? "Congratulations, You Won!" : "Sorry, You Lost";
       }
       else if (data.hints.length != 0) {
          const {clue, n} = data.hints[data.hints.length-1];

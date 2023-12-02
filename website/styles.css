@@ -103,13 +103,24 @@ a.has-title {
    width: 7rem;
 }
 
-#clue {
+.see-stats {
+   text-align: center;
+}
+.link {
+   color: #006eff;
+   text-decoration: underline;
+   cursor: pointer;
+}
+.info-text {
+   display: none;
+}
+
+#clue, .info-text {
    font-size: 110%;
    flex: 1 1 0;
 }
 #clue > span {
    font-weight: bold;
-   font-size: 110%;
    letter-spacing: .1rem;
 }
 
@@ -167,22 +178,26 @@ a.has-title {
 }
 
 .card {
-   padding: 20% 10% 10% 10%;
+   padding: 3rem 1rem 1rem 1rem;
    background-color: var(--card-color);
    border-radius: 5px;
    font-size: larger;
    font-weight: 500;
    cursor: pointer;
-   text-transform: uppercase;
-   position: relative;
    overflow: hidden;
-   text-align: center;
+
+   display: flex;
+   align-items: stretch;
 }
-.card span {
-   display: block;
+.card > span {
    padding: .5rem;
    letter-spacing: .1rem;
    background: var(--card-light);
+
+   flex: 1 1 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
 }
 .bad span {
    background: var(--bad-light);
@@ -204,14 +219,6 @@ body.round-over .card {
    color: white;
 }
 
-.see-stats {
-   text-align: center;
-}
-.link {
-   color: #006eff;
-   text-decoration: underline;
-   cursor: pointer;
-}
 
 button {
    background: transparent;
@@ -243,11 +250,11 @@ body.round-over .board {
 body.game-over #endTurn {
    visibility: hidden;
 }
-.see-stats {
-   display: none;
-}
-body.game-over .see-stats {
+body.game-over .info-text {
    display: block;
+}
+body.game-over #clue  {
+   display: none;
 }
 
 @media only screen and (max-width: 600px) {
@@ -273,7 +280,7 @@ body.game-over .see-stats {
       width: auto;
    }
    .card {
-      padding: 20% 5% 10% 5%;
+      padding: 1.5rem .5rem .5rem .5rem;
    }
    .spacer-left {
       display: none;

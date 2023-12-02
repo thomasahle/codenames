@@ -26,9 +26,13 @@
       </header>
       <div class="container">
          <div class="scoreboard">
-            <span class="spacer spacer-left"></span>
-            <span id="clue">Loading...</span>
-            <span class="spacer spacer-right" id="round"></span>
+            <div class="spacer spacer-left"></div>
+            <div id="clue">Loading...</div>
+            <div class="info-text">
+               <p id="win-lose-text"></p>
+               <p class="see-stats">See the Clues in <span class="link" id="stats-link">Statistics</span></p>
+            </div>
+            <div class="spacer spacer-right" id="round"></div>
          </div>
          <div id="gameBoard" class="board"></div>
          <div id="bottom">
@@ -36,9 +40,6 @@
             <span class="spacer2"></span>
             <button id="endTurn">Next Round</button>
          </div>
-         <footer><p class="see-stats">
-            See the Clues in <span class="link" id="stats-link">Statistics</span>
-            </p></footer>
       </div>
 
       <div id="help-modal" class="modal">
@@ -106,10 +107,10 @@
                </div>
             </div>
 
-            <h3 class="gap-above">Guess Distribution</h3>
+            <h3 class="gap-above">Rounds Used When Winning</h3>
             <div id="guessDistribution"></div>
 
-            <h3 class="gap-above">Intended Clues from Last Game</h3>
+            <h3 class="gap-above">Intended Clues From Last Game</h3>
             <div id="post-game-analysis">
                <p>Come back here after the game.</p>
             </div>
