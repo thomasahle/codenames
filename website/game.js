@@ -1,7 +1,7 @@
 
 // Check if the iOS version is at least 17
-if (!isIOSVersionAtLeast(17)) {
-   alert('Requires iOS at least v17, or Android');
+if (!isIOSVersionAtLeast(16)) {
+   alert('Requires iOS at least v16, or Android');
 }
 
 // Start heavy promises
@@ -26,24 +26,25 @@ const MAX_ROUNDS = 6;
  * X Don't use a word that's on the board
  * X Make sure the whole wordlist is included in the vecs
  * X Don't reuse hints
- * - Different backgorund color for when all clues are used vs making a mistake
  * X Make hints work when we only have secrets left
  * X Don't allow clicking on something already clicked
- * - Consider a "new game" button?
  * X Last round must always have a large enough clue that winning is possible.
+ * - Different backgorund color for when all clues are used vs making a mistake
+ * - Nicer "next round" button
  *
  * Medium:
- * - One game a day, seeding
  * X A victory screen that is an overlay, like in Wordle
  * X Automatically show help the first time a user joins
  * X Write help text
  *
  * Harder:
- * - Support the user being the spy master
- * - Save all user guesses
+ * - Support the user being the spy master (probably never)
  * X Scoreboard
- * - Track user clicks
  * X After the game, show a log of what clues the AI was going for
+ * - One game a day, seeding (can go to previous days for more games)
+ * - Save all user guesses
+ * - Track user clicks
+ * - Train model offline using gpt as guesser
  */
 
 async function start() {
@@ -191,9 +192,9 @@ async function start() {
       const board = data.board.filter(w => !data.revealed.includes(w));
       const secret = data.secret.filter(w => !data.revealed.includes(w));
       let stopwords = [...data.ai.stopwords];
-      if (data.hints.length != 0) {
-         // Don't reuse the hint you just used.
-         stopwords.push(data.hints[data.hints.length-1].clue);
+      // Don't repeat hints
+      for (let hint of data.hints) {
+         stopwords.push(hint.clue);
       }
 
       let agg = 0.6;  // Default aggressiveness = 0.6
