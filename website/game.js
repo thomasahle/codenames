@@ -397,7 +397,8 @@ function initMenu(date, allGameDatas) {
    shareButton.onclick = function() {
 
       const {shareString, logString} = compileLog(gameData.hints, gameData.revealed, gameData.secret);
-      let copyString = `CODEWORDS ${toLongDate(date, false)}, ${gameData.hints.length}/${MAX_ROUNDS}`;
+      let used = isWon(gameData) ? gameData.hints.length : "X";
+      let copyString = `CODEWORDS ${toLongDate(date, false)}, ${used}/${MAX_ROUNDS}`;
       copyString += "\n\n" + shareString;
 
       // Copying the string to the clipboard
@@ -679,7 +680,7 @@ function compileLog(hints, revealed, secret) {
          } else {
             s += `<li class="small-card good">${word}<span>(Guessed by chance)</span></li>`;
          }
-         shareString += "🟧";
+         shareString += "🟨";
       }
       if (mistake !== null) {
          s += `<li class="small-card bad">${mistake}<span>(Incorrect)</span></li>`;
