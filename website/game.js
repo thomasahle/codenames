@@ -336,14 +336,11 @@ async function main(date, datas) {
          return;
       }
 
-      if (isWon(data)) {
-         // TODO: Could also just compute this based on saved game data
-         let rounds = data.hints.length;
-         let guessDistribution = JSON.parse(localStorage.getItem('guessDistribution'))
-            || new Array(MAX_ROUNDS).fill(0);
-         guessDistribution[rounds - 1] = (guessDistribution[rounds - 1] || 0) + 1;
-         localStorage.setItem('guessDistribution', JSON.stringify(guessDistribution));
-      }
+      gtag('event', 'game_result', {
+          'event_category': 'Game Interaction',
+          'event_label': isWon(data) ? 'Win' : 'Lost',
+          'value': isWon(data) ? 1 : 0
+      });
 
       // Ideally we should re-render the statistics here.
       // We can't actually do this with our design.
@@ -455,19 +452,23 @@ function initMenu(date, allGameDatas) {
       if (longestEnd !== null && longestEnd !== undefined)
          document.getElementById('maxStreak').setAttribute("title", `Streak ended ${toShortDate(longestEnd)}`);
 
-      // Create bars. I like the bars.
-      let distribution = JSON.parse(localStorage.getItem('guessDistribution'))
-         || new Array(MAX_ROUNDS).fill(0);
-      let guessDistributionContainer = document.getElementById('guessDistribution');
+      // Compute guess distribution
+      const distribution = new Array(MAX_ROUNDS).fill(0);
+      for (const d of Object.values(allGameDatas)) {
+         if (isWon(d)) {
+            distribution[d.hints.length - 1]++;
+         }
+      }
+      const guessDistributionContainer = document.getElementById('guessDistribution');
       guessDistributionContainer.innerHTML = '';
       distribution.forEach((count, index) => {
-         let barContainer = document.createElement('div');
+         const barContainer = document.createElement('div');
          barContainer.className = 'guessBar-container';
          barContainer.innerHTML = `<div class="row-label">${index+1}</div>`;
-         let bar = document.createElement('div');
+         const bar = document.createElement('div');
          bar.className = 'guessBar';
-         let percent = count / Math.max(...distribution) * 100;
-         let width = count > 0 ? `${percent.toFixed(2)}%` : '0%';
+         const percent = count / Math.max(...distribution) * 100;
+         const width = count > 0 ? `${percent.toFixed(2)}%` : '0%';
          bar.style.width = `calc(max(1rem, ${width}))`;
          bar.innerHTML = `<span>${count}</span>`;
          barContainer.appendChild(bar);
