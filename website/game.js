@@ -230,10 +230,28 @@ async function main(date, datas) {
          return;
       }
 
+      const {clue, n} = data.hints[data.hints.length-1];
+
+      gtag('event', 'card_click', {
+         'event_category': 'Game Interaction',
+         'event_label': 'Card Clicked',
+         // The hint
+         'clue': clue,
+         'clue_n': n,
+         // The interaction
+         'clicked': word,
+         'was_correct': data.secret.includes(word) ? 1 : 0,
+         // The board
+         'secret': data.secret.join(','),
+         'board': data.board.join(','),
+         'revealed': data.revealed,
+         // Extra data
+         'hints': JSON.stringify(data.hints),
+      });
+
       data.revealed.push(word);
       data.revealedThisRound += 1;
 
-      const {clue, n} = data.hints[data.hints.length-1];
       if (data.revealedThisRound == n) {
          data.roundOver = true;
       }
