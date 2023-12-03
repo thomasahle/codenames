@@ -314,19 +314,20 @@ async function main(date, datas) {
       }
    }
 
-   document.getElementById('yesterdays-link').onclick = function() {
-      if (!isGameOver(data)) {
-         console.log("Should not be possible to click the link now.");
-         return;
-      }
-      const curDate = parseDate(date);
-      curDate.setDate(curDate.getDate() - 1); // Subtract one day
-      const yesterday = toShortDate(curDate);
-      window.location.hash = '#' + yesterday;
+   for (const link of document.getElementsByClassName("yesterdays-link")) {
+      console.log(link);
+      link.onclick = function() {
+         const curDate = parseDate(date);
+         curDate.setDate(curDate.getDate() - 1); // Subtract one day
+         const yesterday = toShortDate(curDate);
+         window.location.hash = '#' + yesterday;
+      };
    }
 
-   document.getElementById('todays-link').onclick = function() {
-      window.location.hash = '#';
+   for (const link of document.getElementsByClassName("todays-link")) {
+      link.onclick = function() {
+         window.location.hash = '#';
+      };
    }
 
    function onGameOver() {
@@ -667,7 +668,7 @@ function compileLog(hints, revealed, secret) {
    for (let i = 0; i < hints.length; i++) {
       let hint = hints[i];
       s += `<li><p>Round ${i + 1} Clue: <b>${hint.clue.toUpperCase()} ${hint.n}</b></p>`;
-      s += "<ul class=\"card-list\">";
+      s += "<div class=\"card-list\">";
 
       let guessed = [];
       while (
@@ -685,28 +686,32 @@ function compileLog(hints, revealed, secret) {
          j++;
       }
 
+      function href(word) {
+         return `href="https://www.google.com/search?q=${hint.clue}+${word}"`
+      }
+
       let intended = hint.intendedClues;
       for (let word of intended) {
          if (!guessed.includes(word)) {
-            s += `<li class="small-card">${word}<span>(Intended clue)</span></li>`;
-            shareString += "⬜";
+            s += `<a class="small-card" ${href(word)}>${word}<span>(Intended clue)</span></a>`;
+            shareString += "⬜";  // White box
          }
       }
       for (let word of guessed) {
          if (intended.includes(word)) {
-            s += `<li class="small-card good">${word}<span>(Guessed and Intended)</span></li>`;
+            s += `<a class="small-card good" ${href(word)}>${word}<span>(Guessed and Intended)</span></a>`;
          } else {
-            s += `<li class="small-card good">${word}<span>(Guessed by chance)</span></li>`;
+            s += `<a class="small-card good" ${href(word)}>${word}<span>(Guessed by chance)</span></a>`;
          }
-         shareString += "🟨";
+         shareString += "🟨";  // Orange box
       }
       if (mistake !== null) {
-         s += `<li class="small-card bad">${mistake}<span>(Incorrect)</span></li>`;
-         shareString += "🟫";
+         s += `<a class="small-card bad" ${href(mistake)}>${mistake}<span>(Incorrect)</span></a>`;
+         shareString += "⬛";  // Black box
       }
       shareString += "\n";
 
-      s += "</ul></li>";
+      s += "</div></li>";
    }
    s += "</ol>";
    return {shareString, logString: s};

@@ -18,6 +18,11 @@ body {
    font-family: "Helvetica Neue", sans-serif;
 }
 
+a {
+   text-decoration: none;
+   color: black;
+}
+
 body.round-over {
    background: #faf8f8;
 }
@@ -72,9 +77,6 @@ h3 {
 p {
    margin-bottom: .3rem;
 }
-ul {
-   padding-left: 1rem;
-}
 li {
    margin-bottom: 4px;
 }
@@ -83,6 +85,9 @@ p.gap-under{
 }
 .gap-above {
    margin-top: 2rem;
+}
+.small-gap-above {
+   margin-top: .5rem;
 }
 a.has-title {
    text-decoration: none;
@@ -283,7 +288,7 @@ body:not(.game-over) .div-after-game {
    display: none;
 }
 .div-during-game {
-   margin-top: 1rem
+   /*margin-top: 1rem*/
 }
 body.game-over .div-during-game {
    display: none;
