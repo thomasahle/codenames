@@ -397,7 +397,7 @@ function initMenu(date, allGameDatas) {
    shareButton.onclick = function() {
 
       const {shareString, logString} = compileLog(gameData.hints, gameData.revealed, gameData.secret);
-      let copyString = `CODENAMES ${toLongDate(date, false)}, ${gameData.hints.length}/${MAX_ROUNDS}`;
+      let copyString = `CODEWORDS ${toLongDate(date, false)}, ${gameData.hints.length}/${MAX_ROUNDS}`;
       copyString += "\n\n" + shareString;
 
       // Copying the string to the clipboard
