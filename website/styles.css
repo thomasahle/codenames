@@ -26,7 +26,7 @@ body.game-win {
    background: #fffae6;
 }
 body.game-lost {
-   background: #ffefef;
+   background: #ffeae6;
 }
 
 .container {
@@ -438,4 +438,35 @@ body:not(.today) .is-today {
 }
 .row-label {
    width: 1rem;
+}
+
+.share-button {
+  display: flex;
+  gap: .5rem;
+  justify-content: center;
+  align-items: center;
+
+  margin:auto;
+
+  height: 3rem;
+  border-radius: 1.5rem;
+
+  padding: 0 2rem;
+  background-color: #5fab1b;
+  color: white;
+
+  cursor: pointer;
+  font-size: 105%;
+}
+
+.modal-message {
+   background: black;
+   padding: 1rem;
+   border-radius: 5px;
+   color: white;
+
+   position: absolute;
+   top: 0;
+   left: 50%;
+   transform: translate(-50%, -110%);
 }

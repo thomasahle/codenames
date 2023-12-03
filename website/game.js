@@ -48,6 +48,21 @@ function parseDate(dateStr) {
    return new Date(dateStr + 'T00:00');
 }
 
+function toLongDate(date, includeYear = true) {
+    const options = {
+        year: includeYear ? 'numeric' : undefined, // Include year based on the flag
+        month: 'long',
+        day: 'numeric'
+    };
+    return parseDate(date).toLocaleDateString(undefined, options);
+}
+
+function toShortDate(date) {
+   return date.getFullYear() + '-' + 
+      String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+      String(date.getDate()).padStart(2, '0');
+}
+
 function checkSetAndGetDateHash() {
    const dateFromHash = window.location.hash.substring(1); // Remove the '#' character
    const dateRegex = /^\d{4}-\d{2}-\d{2}$/; // Simple regex for YYYY-MM-DD format
@@ -56,7 +71,7 @@ function checkSetAndGetDateHash() {
 
    // Check if the date matches the format and is not NaN, and is not in the future
    if (!dateFromHash.match(dateRegex) || isNaN(inputDate.getTime()) || inputDate > today) {
-      const todayStr = today.toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+      const todayStr = toShortDate(today);
       window.location.hash = '#' + todayStr;
       return todayStr;
    }
@@ -197,8 +212,7 @@ async function main(date, datas) {
 
       // Footer
       for (const span of document.getElementsByClassName("date")) {
-         const options = { year: 'numeric', month: 'long', day: 'numeric' };
-         span.textContent = parseDate(date).toLocaleDateString(undefined, options);
+         span.textContent = toLongDate(date);
       }
    }
 
@@ -289,7 +303,7 @@ async function main(date, datas) {
       }
       const curDate = parseDate(date);
       curDate.setDate(curDate.getDate() - 1); // Subtract one day
-      const yesterday = curDate.toISOString().split('T')[0];
+      const yesterday = toShortDate(curDate);
       window.location.hash = '#' + yesterday;
    }
 
@@ -319,10 +333,10 @@ async function main(date, datas) {
    }
 
    init();
-   initMenu(data, datas);
+   initMenu(date, datas);
 }
 
-function initMenu(gameData, allGameDatas) {
+function initMenu(date, allGameDatas) {
    const statsButton = document.getElementById('stats-button');
    const statsLink = document.getElementById('stats-link');
    const helpButton = document.getElementById('help-button');
@@ -331,11 +345,13 @@ function initMenu(gameData, allGameDatas) {
    const statsModal = document.getElementById('stats-modal');
    const helpModal = document.getElementById('help-modal');
    const analysisDiv = document.getElementById('post-game-analysis');
+   const shareButton = document.getElementById('shareButton');
 
    const data = {
       helpShown: false,
       statsShown: false,
    }
+   const gameData = allGameDatas[date];
 
    statsButton.onclick = function() {
       data.statsShown = true;
@@ -378,6 +394,28 @@ function initMenu(gameData, allGameDatas) {
       render();
    }
 
+   shareButton.onclick = function() {
+
+      const {shareString, logString} = compileLog(gameData.hints, gameData.revealed, gameData.secret);
+      let copyString = `CODENAMES ${toLongDate(date, false)}, ${gameData.hints.length}/${MAX_ROUNDS}`;
+      copyString += "\n\n" + shareString;
+
+      // Copying the string to the clipboard
+      navigator.clipboard.writeText(copyString).then(function() {
+         // Show the message
+         const message = document.getElementById('message');
+         message.style.display = 'inline';
+
+         // Hide the message after 2 seconds
+         setTimeout(function() {
+            message.style.display = 'none';
+         }, 2000);
+      }).catch(function(error) {
+         // Handle any errors here
+         console.error('Error copying text: ', error);
+      });
+   }
+
    function render() {
       statsModal.style.display = data.statsShown ? "block" : "none";
       helpModal.style.display = data.helpShown ? "block" : "none";
@@ -394,7 +432,7 @@ function initMenu(gameData, allGameDatas) {
       const {longestStreak, longestEnd, currentStreak} = findStreaks(allGameDatas);
       document.getElementById('currentStreak').textContent = currentStreak;
       document.getElementById('maxStreak').textContent = longestStreak;
-      document.getElementById('maxStreak').setAttribute("title", `Streak ended ${longestEnd}`);
+      document.getElementById('maxStreak').setAttribute("title", `Streak ended ${toShortDate(longestEnd)}`);
 
       // Create bars. I like the bars.
       let distribution = JSON.parse(localStorage.getItem('guessDistribution'))
@@ -418,7 +456,8 @@ function initMenu(gameData, allGameDatas) {
       // Log of clues
       if (isGameOver(gameData)) {
          console.log("Making log");
-         analysisDiv.innerHTML = compileLog(gameData.hints, gameData.revealed, gameData.secret);
+         const {shareString, logString} = compileLog(gameData.hints, gameData.revealed, gameData.secret);
+         analysisDiv.innerHTML = logString;
       } else {
          console.log("Making log");
          analysisDiv.innerHTML = "<p>Come back here after the game.</p>";
@@ -603,6 +642,7 @@ function makeHint(matrix, words, stopwords, board, secret, aggressiveness) {
 
 
 function compileLog(hints, revealed, secret) {
+   let shareString = "";
    let s = "<ol class=\"log-list\">";
    let j = 0;
    for (let i = 0; i < hints.length; i++) {
@@ -630,6 +670,7 @@ function compileLog(hints, revealed, secret) {
       for (let word of intended) {
          if (!guessed.includes(word)) {
             s += `<li class="small-card">${word}<span>(Intended clue)</span></li>`;
+            shareString += "⬜";
          }
       }
       for (let word of guessed) {
@@ -638,15 +679,18 @@ function compileLog(hints, revealed, secret) {
          } else {
             s += `<li class="small-card good">${word}<span>(Guessed by chance)</span></li>`;
          }
+         shareString += "🟧";
       }
       if (mistake !== null) {
          s += `<li class="small-card bad">${mistake}<span>(Incorrect)</span></li>`;
+         shareString += "🟫";
       }
+      shareString += "\n";
 
       s += "</ul></li>";
    }
    s += "</ol>";
-   return s;
+   return {shareString, logString: s};
 }
 
 function findStreaks(datesObject) {
@@ -701,7 +745,7 @@ function findStreaks(datesObject) {
 
    return {
       longestStreak,
-      longestEnd: longestEnd ? longestEnd.toISOString().split('T')[0] : null,
+      longestEnd,
       currentStreak
    };
 }
