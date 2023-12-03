@@ -452,7 +452,8 @@ function initMenu(date, allGameDatas) {
       const {longestStreak, longestEnd, currentStreak} = findStreaks(allGameDatas);
       document.getElementById('currentStreak').textContent = currentStreak;
       document.getElementById('maxStreak').textContent = longestStreak;
-      document.getElementById('maxStreak').setAttribute("title", `Streak ended ${toShortDate(longestEnd)}`);
+      if (longestEnd !== null && longestEnd !== undefined)
+         document.getElementById('maxStreak').setAttribute("title", `Streak ended ${toShortDate(longestEnd)}`);
 
       // Create bars. I like the bars.
       let distribution = JSON.parse(localStorage.getItem('guessDistribution'))
