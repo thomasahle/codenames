@@ -83,13 +83,45 @@ function checkSetAndGetDateHash() {
 window.addEventListener('hashchange', start);
 
 function isGameOver(data) {
-   return isWon(data) || isLost(data);
+   return getWDL(data) != 0;
 }
 function isWon(data) {
-   return data.secret.every(w => data.revealed.includes(w));
+   return getWDL(data) == 1;
 }
 function isLost(data) {
-   return data.roundOver && data.hints.length >= MAX_ROUNDS;
+   return getWDL(data) == -1;
+}
+
+function getWDL(data) {
+   // W=1, L=-1, D=not finished=0
+
+   // Winning is easy
+   if (data.secret.every(w => data.revealed.includes(w)))
+      return 1;
+
+   // If we have too many rounds, we've lost for sure.
+   // Though this shouldn't even happen.
+   if (data.hints.length > MAX_ROUNDS)
+      return -1;
+
+   // If we still have rounds to go, we can't have lost,
+   // so we must still be playing.
+   if (data.hints.length < MAX_ROUNDS)
+      return 0;
+
+   // The tricky case is when data.hints == MAX_ROUNDS.
+
+   // Since we don't save the individual guesses per round.
+   // We have to compute them ourselves.
+   let guesses = getGuessesPerRound(data);
+
+   // We check whether the guesses of the last round contain a mistake.
+   for (let word of guesses[guesses.length-1]) {
+      if (!data.secret.includes(word))
+         return -1;
+   }
+   // If there were no mistakes, (and we haven't won yet) we must still be playing
+   return 0;
 }
 
 async function main(date, datas) {
@@ -676,10 +708,36 @@ function makeHint(matrix, words, stopwords, board, secret, aggressiveness, shift
    return combinedBest;
 }
 
+function getGuessesPerRound(data) {
+   let j = 0;
+   const result = [];
+   for (const hint of data.hints) {
+      const guesses = [];
+      while (
+         j !== data.revealed.length                // Not through all actions yet.
+         && data.secret.includes(data.revealed[j]) // No mistake yet.
+         && guesses.length != hint.n               // Haven't finished by success.
+      ) {
+         guesses.push(data.revealed[j]);
+         j++;
+      }
+      result.push(guesses);
+   }
+   // If we just started a new round
+   if (result.length == data.hints.length-1) {
+      result.push([]);
+   }
+   if (result.length != data.hints.length) {
+      console.log(`Bad length ${result.length}, ${data.hints.length}.`);
+   }
+   return result;
+
+}
 
 function compileLog(hints, revealed, secret) {
    let shareString = "";
    let s = "<ol class=\"log-list\">";
+   // TODO: Use getGuessesPerRound here instead of computing it manually
    let j = 0;
    for (let i = 0; i < hints.length; i++) {
       let hint = hints[i];
