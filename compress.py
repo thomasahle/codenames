@@ -30,15 +30,24 @@ def dequantize_8bit(quantized, min_val, max_val):
 
 def main(args):
     vecs = np.load(args.vectors)
+
+    n, dim = vecs.shape
+    if dim != 300:
+        from sklearn.decomposition import PCA
+        vecs = PCA(n_components=300).fit_transform(vecs)
+
     # vecs /= np.linalg.norm(vecs, axis=1, keepdims=True)
     with open(args.words) as file:
         words = file.readlines()
 
-    good_words = set()
-    print(args.f)
-    for path in args.f:
-        with open(path) as file:
-            good_words |= {line.lower().strip() for line in file}
+    if not args.f:
+        good_words = set(words)
+    else:
+        good_words = set()
+        print(args.f)
+        for path in args.f:
+            with open(path) as file:
+                good_words |= {line.lower().strip() for line in file}
     print(f'{len(good_words)=}')
     print(list(good_words)[:3])
 
@@ -75,7 +84,7 @@ def main(args):
         if merr < best_err:
             best_err = merr
             best_alpha = alpha
-        # print(f"{alpha}, Mean error: {merr}")
+        print(f"{alpha}, Mean error: {merr}")
     print(f"{best_alpha=}")
 
     compressed, min_val, max_val = quantize_8bit(x, best_alpha)

@@ -8,7 +8,8 @@ if (!isIOSVersionAtLeast(16)) {
 // Start heavy promises
 const root = '/website/model';
 const prom = Promise.all([
-   fetchVectors(root + '/vecs.gz'),
+   //fetchVectors(root + '/vecs.gz'),
+   fetchVectors(root + '/angel.gz'),
    fetchWordsGz(root + '/words.gz'),
    fetchWords(root + '/stopwords')
 ]);
@@ -565,29 +566,27 @@ function fetchVectors(path) {
       })
       .then(decompressedBuffer => {
          const dim = 300;
-         //const rows = 20000;
          const rows = 9910;
          const byteArray = new Uint8Array(decompressedBuffer);
-         // console.log(byteArray);
-         const min_val=-2.645588700353074;
-         const max_val=2.6333964024164196;
-         //min=-2.6348934823495345, max=2.6430343918786767
+
+         // Glove:
+         //const min_val=-2.645588700353074;
+         //const max_val=2.6333964024164196;
+
+         // Angel:
+         const min_val=-3.508529352673804;
+         const max_val=4.6301482913369485;
+
+         // Dequantize
          const quantizedMatrix = mlMatrix.Matrix.from1DArray(rows, dim, byteArray);
          let matrix = quantizedMatrix.div(255).mul(max_val - min_val).add(min_val);
 
-         //console.log(matrix);
-         //const norms = matrix.mul(matrix).sum('row').sqrt();
-
+         // Normalize
          for (let i = 0; i < matrix.rows; i++) {
             let row = matrix.getRow(i);
             let norm = Math.sqrt(row.reduce((sum, value) => sum + value * value, 0));
             matrix.setRow(i, row.map(value => value / norm));
          }
-         // console.log("TOP ROW");
-         // console.log(matrix.getRow(0));
-
-
-         // console.log(matrix);
          return matrix;
       })
       .catch(error => console.error('Error loading file:', error));

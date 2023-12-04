@@ -71,6 +71,9 @@ h2 {
 ul, h3 {
    margin-bottom: 1rem;
 }
+ul {
+   padding-left: 1rem;
+}
 h3 {
    font-weight: normal;
 }
@@ -475,3 +478,4 @@ body:not(.today) .is-today {
    left: 50%;
    transform: translate(-50%, -110%);
 }
+
