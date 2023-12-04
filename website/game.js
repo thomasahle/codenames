@@ -287,19 +287,21 @@ async function main(date, datas) {
       }
 
       let agg = 0.6;  // Default aggressiveness = 0.6
+      let shift = .9;
 
       // Let's adjust aggressiveness based on how well the user is doing
-      let got = data.secret.filter(w => data.revealed.includes(w)).length;
-      let success = got / data.revealed.length;
-      if (success <= .5)
-         agg = 0.3;
+      // let got = data.secret.filter(w => data.revealed.includes(w)).length;
+      // let success = got / data.revealed.length;
+      // if (success <= .5)
+      //    agg = 0.3;
 
       // If this is the last round, we need to give a clue number high enough
       // that the user has a change to win.
       if (data.hints.length == MAX_ROUNDS - 1) {
+         shift = .99;
          agg = 100;
       }
-      const hint = makeHint(ai.matrix, ai.words, stopwords, board, secret, agg);
+      const hint = makeHint(ai.matrix, ai.words, stopwords, board, secret, agg, shift);
       data.hints.push(hint);
 
       data.thinking = false;
@@ -588,9 +590,9 @@ function findVector(words, word) {
    return index;
 }
 
-function makeHint(matrix, words, stopwords, board, secret, aggressiveness) {
+function makeHint(matrix, words, stopwords, board, secret, aggressiveness, shift) {
    /* The algorithm uses the following formula for scoring clues:
-    * gap * (n^agg - 1)
+    * gap * (n^agg - shift)
     * Where `gap` is the gap in inner products between the worst "good" word
     * and the best "bad" word.
     * `n` is the size of the clue, and agg is the aggressiveness.
@@ -617,7 +619,6 @@ function makeHint(matrix, words, stopwords, board, secret, aggressiveness) {
    const pm = matrix.mmul(goodVectors.transpose());
 
    // let weirdness = [math.log(i + 1) + 1 for i in range(len(self.word_list))]
-   let agg = .6;  // Agressiveness
 
    let best = {};
    for (let step = 0; step < words.length; step++) {
@@ -659,7 +660,7 @@ function makeHint(matrix, words, stopwords, board, secret, aggressiveness) {
       n = parseInt(n);
       console.log(`N: ${n+1}, Gap: ${gap}, Clue: ${clue}, Lb: ${lowerBound}`);
       console.log(scores);
-      let combinedScore = gap * (Math.pow(n+1, aggressiveness) - 0.99);
+      let combinedScore = gap * (Math.pow(n+1, aggressiveness) - shift);
       console.log(`Combined Score: ${combinedScore}`);
 
       let indices = [...scores.keys()];
