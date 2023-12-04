@@ -9,3 +9,6 @@ __pycache__/
 
 *.swp
 TODO
+
+extract2.py
+training.data*

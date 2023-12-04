@@ -535,7 +535,20 @@ function fetchVectors(path) {
          const max_val=2.6333964024164196;
          //min=-2.6348934823495345, max=2.6430343918786767
          const quantizedMatrix = mlMatrix.Matrix.from1DArray(rows, dim, byteArray);
-         const matrix = quantizedMatrix.div(255).mul(max_val - min_val).add(min_val);
+         let matrix = quantizedMatrix.div(255).mul(max_val - min_val).add(min_val);
+
+         //console.log(matrix);
+         //const norms = matrix.mul(matrix).sum('row').sqrt();
+
+         for (let i = 0; i < matrix.rows; i++) {
+            let row = matrix.getRow(i);
+            let norm = Math.sqrt(row.reduce((sum, value) => sum + value * value, 0));
+            matrix.setRow(i, row.map(value => value / norm));
+         }
+         // console.log("TOP ROW");
+         // console.log(matrix.getRow(0));
+
+
          // console.log(matrix);
          return matrix;
       })

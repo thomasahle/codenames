@@ -79,7 +79,7 @@ class TerminalReader(Reader):
 
 
 class Codenames:
-    def __init__(self, cnt_rows=5, cnt_cols=5, cnt_agents=8, agg=.6):
+    def __init__(self, cnt_rows=5, cnt_cols=5, cnt_agents=8, agg=.6, shift=.99):
         """
         :param cnt_rows: Number of rows to show.
         :param cnt_cols: Number of columns to show.
@@ -90,6 +90,7 @@ class Codenames:
         self.cnt_cols = cnt_cols
         self.cnt_agents = cnt_agents
         self.agg = agg
+        self.shift = shift
 
         # Other
         self.vectors = np.array([])
@@ -144,7 +145,8 @@ class Codenames:
         return max(choices, key=lambda w: self.word_to_vector(w) @ clue_vector)
 
     def find_clue(
-        self, words: List[str], my_words: List[str], black_list: Iterable[str]
+        self, words: List[str], my_words: List[str], black_list: Iterable[str],
+        verbose: bool=False,
     ) -> Tuple[str, float, List[str]]:
         """
         :param words: Words on the board.
@@ -152,20 +154,25 @@ class Codenames:
         :param black_list: Clues we are not allowed to give.
         :return: (The best clue, the score, the words we expect to be guessed)
         """
-        print("Thinking", end="", flush=True)
+        if verbose:
+            print("Thinking", end="", flush=True)
 
         # Words to avoid the agent guessing.
         negs = [w for w in words if w not in my_words]
         # Worst (highest) inner product with negative words
-        nm = (
-            self.vectors @ np.array([self.word_to_vector(word) for word in negs]).T
-        ).max(axis=1)
+        if negs:
+            nm = (
+                self.vectors @ np.array([self.word_to_vector(word) for word in negs]).T
+            ).max(axis=1)
+        else:
+            # The case where we only have my_words left
+            nm = [-1000] * len(self.word_list)
         # Inner product with positive words
         pm = self.vectors @ np.array([self.word_to_vector(word) for word in my_words]).T
 
         best_clue, best_score, best_k, best_g = None, -1, 0, ()
         for step, (clue, lower_bound, scores) in enumerate(zip(self.word_list, nm, pm)):
-            if step % 20000 == 0:
+            if verbose and step % 20000 == 0:
                 print(".", end="", flush=True)
 
             # If the best score is lower than the lower bound, there is no reason
@@ -183,7 +190,7 @@ class Codenames:
             real_score, j = max(
                 (
                     (s - lower_bound)
-                    * ((len(ss) - j) ** self.agg - .99)
+                    * ((len(ss) - j) ** self.agg - self.shift)
                     / self.weirdness[step],
                     j,
                 )
@@ -200,7 +207,8 @@ class Codenames:
                 )
 
         # After printing '.'s with end="" we need a clean line.
-        print()
+        if verbose:
+            print()
 
         return best_clue, best_score, best_g
 
@@ -281,4 +289,6 @@ def main():
             pass
 
 
-main()
+if __name__ == '__main__':
+    main()
+

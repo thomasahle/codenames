@@ -94,4 +94,5 @@ def main(args):
     with open(f'{args.words}.out', 'w') as file:
         file.write("\n".join(included_words))
 
-main(parser.parse_args())
+if __name__ == '__main__':
+    main(parser.parse_args())
