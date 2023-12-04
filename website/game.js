@@ -113,7 +113,8 @@ function getWDL(data) {
 
    // Since we don't save the individual guesses per round.
    // We have to compute them ourselves.
-   let guesses = getGuessesPerRound(data);
+   let guesses = getGuessesPerRound(data.hints, data.revealed, data.secret);
+   console.log(`Guesses per round: ${guesses}`);
 
    // We check whether the guesses of the last round contain a mistake.
    for (let word of guesses[guesses.length-1]) {
@@ -251,6 +252,7 @@ async function main(date, datas) {
    function handleCardClick(word) {
       console.log("Card clicked:", word);
       if (data.roundOver) {
+         // Shouldn't be possible to get here
          console.log("Round over, please start next round.");
          return;
       }
@@ -262,6 +264,7 @@ async function main(date, datas) {
          return;
       }
 
+      // Get the last hint that the user saw before clicking
       const {clue, n} = data.hints[data.hints.length-1];
 
       gtag('event', 'card_click', {
@@ -291,6 +294,7 @@ async function main(date, datas) {
          data.roundOver = true;
       }
 
+      console.log(`Is game over? ${isGameOver(data)} ${getWDL(data)}`);
       if (isGameOver(data)) {
          onGameOver();
       }
@@ -708,27 +712,32 @@ function makeHint(matrix, words, stopwords, board, secret, aggressiveness, shift
    return combinedBest;
 }
 
-function getGuessesPerRound(data) {
+function getGuessesPerRound(hints, revealed, secret) {
    let j = 0;
    const result = [];
-   for (const hint of data.hints) {
+   for (const hint of hints) {
       const guesses = [];
       while (
-         j !== data.revealed.length                // Not through all actions yet.
-         && data.secret.includes(data.revealed[j]) // No mistake yet.
-         && guesses.length != hint.n               // Haven't finished by success.
+         j !== revealed.length           // Not through all actions yet.
+         && secret.includes(revealed[j]) // No mistake yet.
+         && guesses.length != hint.n     // Haven't finished by success.
       ) {
-         guesses.push(data.revealed[j]);
+         guesses.push(revealed[j]);
+         j++;
+      }
+      // Maybe add a mistake
+      if (j !== revealed.length && guesses.length != hint.n) {
+         guesses.push(revealed[j]);
          j++;
       }
       result.push(guesses);
    }
    // If we just started a new round
-   if (result.length == data.hints.length-1) {
+   if (result.length == hints.length-1) {
       result.push([]);
    }
-   if (result.length != data.hints.length) {
-      console.log(`Bad length ${result.length}, ${data.hints.length}.`);
+   if (result.length != hints.length) {
+      console.log(`Bad length ${result.length}, ${hints.length}.`);
    }
    return result;
 
@@ -737,28 +746,13 @@ function getGuessesPerRound(data) {
 function compileLog(hints, revealed, secret) {
    let shareString = "";
    let s = "<ol class=\"log-list\">";
-   // TODO: Use getGuessesPerRound here instead of computing it manually
-   let j = 0;
+   const guesses = getGuessesPerRound(hints, revealed, secret);
    for (let i = 0; i < hints.length; i++) {
       let hint = hints[i];
       s += `<li><p>Round ${i + 1} Clue: <b>${hint.clue.toUpperCase()} ${hint.n}</b></p>`;
       s += "<div class=\"card-list\">";
 
-      let guessed = [];
-      while (
-         j !== revealed.length           // Finished game
-         && secret.includes(revealed[j]) // Finished 
-         && guessed.length != hint.n     // Finished without a mistake
-      ) {
-         guessed.push(revealed[j]);
-         j++;
-      }
-
-      let mistake = null;
-      if (j !== revealed.length && guessed.length != hint.n) {
-         mistake = revealed[j];
-         j++;
-      }
+      let guessed = guesses[i];
 
       function href(word) {
          return `href="https://www.google.com/search?q=${hint.clue}+${word}"`
@@ -774,14 +768,14 @@ function compileLog(hints, revealed, secret) {
       for (let word of guessed) {
          if (intended.includes(word)) {
             s += `<a class="small-card good" ${href(word)}>${word}<span>(Guessed and Intended)</span></a>`;
-         } else {
+            shareString += "🟨";  // Orange box
+         } else if (secret.includes(word)) {
             s += `<a class="small-card good" ${href(word)}>${word}<span>(Guessed by chance)</span></a>`;
+            shareString += "🟨";  // Orange box
+         } else {
+            s += `<a class="small-card bad" ${href(word)}>${word}<span>(Incorrect)</span></a>`;
+            shareString += "⬛";  // Black box
          }
-         shareString += "🟨";  // Orange box
-      }
-      if (mistake !== null) {
-         s += `<a class="small-card bad" ${href(mistake)}>${mistake}<span>(Incorrect)</span></a>`;
-         shareString += "⬛";  // Black box
       }
       shareString += "\n";
 
