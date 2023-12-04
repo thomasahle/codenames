@@ -170,7 +170,7 @@ class Codenames:
         # Inner product with positive words
         pm = self.vectors @ np.array([self.word_to_vector(word) for word in my_words]).T
 
-        best_clue, best_score, best_k, best_g = None, -1, 0, ()
+        best_clue, best_score, best_k, best_g = None, -100, 0, ()
         for step, (clue, lower_bound, scores) in enumerate(zip(self.word_list, nm, pm)):
             if verbose and step % 20000 == 0:
                 print(".", end="", flush=True)
