@@ -82,6 +82,10 @@
             <div class="div-during-game is-today">
                Go to <span class="link yesterdays-link">Yesterday's</span>.
             </div>
+            <p class="credits">
+            Made by <a href="https://thomasahle.com" class="weak-link">Thomas Dybdahl Ahle</a>.
+            See <a href="https://github.com/thomasahle/codenames" class="weak-link">the source</a> and contribute on GitHub.
+            </p>
          </footer>
       </div>
 
@@ -90,10 +94,11 @@
             <h2>How to play</h2>
             <button id="help-close" class="close">&times;</button>
 
-            <h3>Find the secret 6 words in 6 tries.</h3>
+            <h3>Find the 6 secret words in 6 tries.</h3>
             <ul>
-               <li>Each clue consists of a <b>word</b> and a <b>number</b>.</li>
-               <li>Tap the cards that match the theme of the clue.</li>
+               <li>Each clue gives you a <b>word</b> and a <b>number</b>;
+                  choose that many words related to the clue (e.g., HAT 2 means pick 2 words related to a hat).</li>
+               <li>Selecting a non-related word ends the round.</li>
             </ul>
 
             <p>Example: <b>HAT 2</b></p>
@@ -103,7 +108,7 @@
                <li class="small-card bad">JUPITER<span>(Incorrect)</span></li>
             </ul>
             <p class="gap-under">
-            Round ended after guessing JUPITER.
+            Round ended early after guessing JUPITER.
             </p>
 
             <p>Example: <b>LODGE 3</b></p>
@@ -117,11 +122,12 @@
             Round ended after <b>3</b> guesses of the secret words.
             </p>
             <p class="gap-under">
-            The bot considers words similar if they are often used in the same context.
-            moderate can be a clue for degree, or boom for <a title="Boom Shack-A-Lak" class="has-title" href="https://en.wikipedia.org/wiki/Boom_Shack-A-Lak">shack</a>.
+            The AI considers words similar if they are often used in the same context:
+            MODERATE can be a clue for DEGREE, or BOOM for <a title="Boom Shack-A-Lak" class="has-title" href="https://en.wikipedia.org/wiki/Boom_Shack-A-Lak">SHACK</a>.
+            It will also learn from user behavior.
             </p>
             <p>
-            A new puzzle is released daily at midnight.
+            A new puzzle is released daily at midnight, but you can play unlimited puzzles from earlier days.
             </p>
          </div>
       </div>

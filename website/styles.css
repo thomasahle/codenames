@@ -89,13 +89,17 @@ p.gap-under{
 .gap-above {
    margin-top: 2rem;
 }
+.credits {
+   margin-top: 4rem;
+   font-style: italic;
+}
 .small-gap-above {
    margin-top: .5rem;
 }
-a.has-title {
-   text-decoration: none;
+a.has-title, .weak-link {
    color: black;
-   border-bottom: 1px solid silver;
+   text-decoration-line: underline;
+   text-decoration-color: silver;
 }
 
 .scoreboard {
