@@ -653,25 +653,28 @@ function makeHint(matrix, words, stopwords, board, secret, aggressiveness, shift
    // a matrix of shape |words| x |secret|
    const pm = matrix.mmul(goodVectors.transpose());
 
-   // let weirdness = [math.log(i + 1) + 1 for i in range(len(self.word_list))]
-
    let best = {};
    for (let step = 0; step < words.length; step++) {
       const clue = words[step];
-      let lowerBound = nm[step] || 0;
-      lowerBound = Math.max(lowerBound, -1); // Very small ips don't mean anything
+      let lowerBound = Math.max(nm[step] || 0, 0);
       const scores = pm.getRow(step);
 
       // TODO: Maybe sometimes it's OK to include a single bad word with a high score,
       // if the `n` is large enough?
+      // Could test this with GPT.
 
       // If the best score is lower than the lower bound, there is no reason
       // to even try it.
       if (stopwords.includes(clue)) {
          continue;
       }
-      if (board.includes(clue.toUpperCase())) {
-         // Don't use something directly present on the board
+      // Don't use something directly present on the board
+      let skip = false;
+      for (const word of board) {
+         skip = skip || word.includes(clue.toUpperCase());
+         skip = skip || clue.toUpperCase().includes(word);
+      }
+      if (skip) {
          continue;
       }
 
