@@ -9,7 +9,7 @@ if (!isIOSVersionAtLeast(16)) {
 const root = '/website/model';
 const prom = Promise.all([
    //fetchVectors(root + '/vecs.gz'),
-   fetchVectors(root + '/angel.gz'),
+   fetchVectors(root + '/angel3.gz'),
    fetchWordsGz(root + '/words.gz'),
    fetchWords(root + '/stopwords')
 ]);
@@ -557,6 +557,7 @@ function fetchWordsGz(path) {
 }
 
 function fetchVectors(path) {
+   console.log(`Loading model ${path}`);
    return fetch(path)
       .then(response => response.body)
       .then(stream => {
@@ -570,12 +571,31 @@ function fetchVectors(path) {
          const byteArray = new Uint8Array(decompressedBuffer);
 
          // Glove:
+         // avg   5.77
+         // win@6 0.67
          //const min_val=-2.645588700353074;
          //const max_val=2.6333964024164196;
 
-         // Angel:
-         const min_val=-3.508529352673804;
-         const max_val=4.6301482913369485;
+         // Angel, PCA:
+         // avg   5.62 - 5.68
+         // win@6 0.688 - 0.696
+         // Avg: 1.980 - 2.002
+         // const min_val=-3.508529352673804;
+         // const max_val=4.6301482913369485;
+
+         // Patched, angel2, lora
+         // avg   5.5
+         // win@6 0.714
+         // Avg: 1.991
+         //const min_val=-6.580836296081543;
+         //const max_val=8.107464790344238;
+
+         // angel3
+         // avg game   5.37
+         // win@6 0.765
+         // Avg clue: 1.883
+         const min_val=-1.7025203704833984;
+         const max_val=1.5609053373336792;
 
          // Dequantize
          const quantizedMatrix = mlMatrix.Matrix.from1DArray(rows, dim, byteArray);
